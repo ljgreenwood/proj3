@@ -7,14 +7,18 @@
 * https://modelnet.cs.princeton.edu/
 
 ### Setup Instructions
-once in the project directory run the below to ensure that the environment is initialized
-
-`source proj3env/bin/activate`
 
 ensure that cuda is installed on your system
 * https://developer.nvidia.com/cuda-downloads
 * ensure that you have installed the pytorch and pytorch-geometric libraries
 * pip install python and pip, then install the following
+
+git clone https://github.com/ljgreenwood/proj3.git
+python3 -m venv proj3env
+
+once in the project directory run the below to ensure that the environment is initialized
+`source proj3env/bin/activate`
+
 pip install ipython
 pip install ipykernel
 pip install jupyter // or just follow whatever install instructions to have these as globals just to make sure everything is there
