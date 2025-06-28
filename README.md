@@ -10,3 +10,18 @@
 once in the project directory run the below to ensure that the environment is initialized
 
 `source proj3env/bin/activate`
+
+ensure that cuda is installed on your system
+* https://developer.nvidia.com/cuda-downloads
+* ensure that you have installed the pytorch and pytorch-geometric libraries
+* pip install python and pip, then install the following
+pip install ipython
+pip install ipykernel
+pip install jupyter // or just follow whatever install instructions to have these as globals just to make sure everything is there
+
+* using \<insert python/pip version\>, CUDA 12.6, PyTorch 2.7.1, and PyG >= 2.3
+`pip3 install torch torchvision torchaudio`
+`pip install torch_geometric`
+
+* Optional dependencies:
+`pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.7.0+cu126.html`
