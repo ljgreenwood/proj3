@@ -1,6 +1,4 @@
 /* BASIC PROCESSING SCRIPT */
-
-
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -11,6 +9,10 @@
 
 struct Point {
     float x, y, z;
+    // Equality operator overloading 
+    bool operator==(const Point& rhs) const {
+        return (x == rhs.x && y == rhs.y && z == rhs.z);
+    }
 };
 
 struct Face {
