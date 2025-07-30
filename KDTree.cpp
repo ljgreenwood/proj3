@@ -3,7 +3,7 @@
 /* ===== Private KDTree Functions ===== */
 KDNode* KDTree::insertHelper(KDNode* node, const Point &point, int depth) {
     // If node does not exist, create new node
-    if (node == nullptr) { return new KDNode(point); }
+    if (node == nullptr) return new KDNode(point);
     int dim = depth % 3;
     std::vector val_new = {point.x, point.y, point.z};
     std::vector val_curr = {node->point.x, node->point.y ,node->point.z};
@@ -15,7 +15,7 @@ KDNode* KDTree::insertHelper(KDNode* node, const Point &point, int depth) {
     return node;
 }
 
-bool KDTree::searchHelper(KDNode* node, const Point &point, int depth) {
+bool KDTree::searchHelper(const KDNode* node, const Point &point, int depth) {
     if (node == nullptr) // If current node is null, point does not exist
         return false; 
     if (node->point == point) // Point is found
@@ -32,7 +32,7 @@ bool KDTree::searchHelper(KDNode* node, const Point &point, int depth) {
 
 void KDTree::traverseHelper(KDNode* node, std::vector<Point> &points) {
     if (node == nullptr)
-        return points;
+        return;
     // Add current node's point to collection
     points.emplace_back(node->point);
     // Traverse left
@@ -41,7 +41,7 @@ void KDTree::traverseHelper(KDNode* node, std::vector<Point> &points) {
     traverseHelper(node->right, points);
 }
 
-void KDTree::deleteKDTree(KDNode* node) {
+void KDTree::deleteKDTree(const KDNode* node) {
     if (node == nullptr)
         return;
     deleteKDTree(node->left);
@@ -57,5 +57,6 @@ bool KDTree::search(const Point &point) {
 }
 std::vector<Point> KDTree::traverse() {
     std::vector<Point> points;
-    return traverseHelper(root, points);
+    traverseHelper(root, points);
+    return points;
 }
