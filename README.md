@@ -31,3 +31,6 @@ pip install jupyter // or just follow whatever install instructions to have thes
 `pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.7.0+cu126.html`
 
 python -m ipykernel install --user --name=proj3env
+* For viewing OFF Files
+
+pip install open3d
