@@ -1,7 +1,7 @@
 #include "KDTree.h"
 
 /* ===== Private KDTree Functions ===== */
-KDNode* KDTree::insertHelper(KDNode* node, const Point &point, int depth) {
+KDTree::KDNode* KDTree::insertHelper(KDNode* node, const Point &point, const int depth) {
     // If node does not exist, create new node
     if (node == nullptr) return new KDNode(point);
     int dim = depth % 3;
@@ -48,13 +48,16 @@ void KDTree::deleteKDTree(const KDNode* node) {
     deleteKDTree(node->right);
     delete node;
 }
+
 /* ===== Public KDTree Functions ===== */
 void KDTree::insert(const Point &point) {
     root = insertHelper(root, point, 0);
 }
+
 bool KDTree::search(const Point &point) {
     return searchHelper(root, point, 0);
 }
+
 std::vector<Point> KDTree::traverse() {
     std::vector<Point> points;
     traverseHelper(root, points);
