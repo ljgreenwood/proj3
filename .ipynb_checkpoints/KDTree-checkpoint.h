@@ -9,7 +9,9 @@ class KDTree {
         KDNode(const Point &p) : point(p), left(nullptr), right(nullptr) {}
     };
 
+    // KDTree root node
     KDNode* root;
+    // KDTree Private Functions
     KDNode* insertHelper(KDNode* node, const Point &point, int depth); // Recursively called to insert node
     bool searchHelper(const KDNode* node, const Point &point, int depth); // Recursively called to find node
     void traverseHelper(KDNode* node, std::vector<Point> &points); // Recursively called to push each node's point into collection
