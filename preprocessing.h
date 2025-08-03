@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <sstream>
 #include <cmath>
+using namespace std;
 
 struct Point {
     float x, y, z;
