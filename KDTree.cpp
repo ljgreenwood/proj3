@@ -63,21 +63,21 @@ void KDTree::nearestNeighborHelper(KDNode* node, const Point &point, const Point
     std::vector curr = {node->point.x, node->point.y, node->point.z};
     KDNode* closer = nullptr;
     KDNode* farther = nullptr;
-    // Deterime father and closer node
+    // Deterime farther and closer node
     if (target[dim] < curr[dim]) {
         closer = node->left;
-        father = node->right;
+        farther = node->right;
     }
     else {
         closer = node->right;
-        father = node->left;
+        farther = node->left;
     }
     // Neighbor search closer
     nearestNeighborHelper(closer, point, bestPoint, dist, depth + 1);
     // Check points on the other side of the splitting plane
     float distPlane = target[dim] - curr[dim];
     if (distPlane * distPlane < dist) { // Neighbor search farther
-        nearestNeighborHelper(father, point, bestPoint, dist, depth + 1);
+        nearestNeighborHelper(farther, point, bestPoint, dist, depth + 1);
     }
 }
 
