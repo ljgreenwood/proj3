@@ -17,16 +17,18 @@ Octree::OctreeNode* Octree::insertHelper(OctreeNode* node, const Point &point) {
     // // ><> backRightBottom 010
     // // <<> frontRightBottom 011
     // // >>< backLeftTop 100
-    // // <>< frontLeftBottom 101
-    // // ><< backRightBottom 110
-    // // <<< frontRightBottom 111
-    // char index = 0; // index of the children array
+    // // <>< frontLeftTop 101
+    // // ><< backRightTop 110
+    // // <<< frontRightTop 111
 
-    // if (node->center.x > point.x) // back section
-        
-    // if (node->center.y > point.y) // left section
 
-    // if (node->center.z > point.z) // bottom section
+    unsigned char index = 0b111; // start with all bits set (7)
+
+    if (node->center.x > point.x) index &= 0b110; // back section  
+    if (node->center.y > point.y) index &= 0b101; // left section  
+    if (node->center.z > point.z) index &= 0b011; // bottom section         
+    
+    // NOW THE CHAR HAS THE INDEX
 
 }
 
