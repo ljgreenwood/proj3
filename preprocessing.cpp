@@ -23,6 +23,10 @@ bool loadOFF(const std::string& path, std::vector<Point>& vertices, std::vector<
     return true;
 }
 
+void makePC(vector<Point>& vertices, vector<Face>& faces, vector<Point>& pointCloud) {
+    // add some logic here to sample points from the surface and create a pointcloud
+}
+
 // ONCE WE HAVE A POINT CLOUD WE CAN PROCEED AND INSERT AS FOLLOWS
 
 // // May need to be changed depending on how we insert data into KDTree

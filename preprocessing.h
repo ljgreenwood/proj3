@@ -27,8 +27,9 @@ struct Face {
     std::vector<int> indices;
 };
 
-bool loadOFF(const std::string& path, std::vector<Point>& vertices, std::vector<Face>& faces);
-void viewOFF(const std::string& path);
-void normalize(std::vector<Point> vertices);
+bool loadOFF(const string& path, vector<Point>& vertices, vector<Face>& faces);
+void viewOFF(const string& path);
+void makePC(vector<Point>& vertices, vector<Face>& faces, vector<Point>& pointCloud); 
+// void normalize(std::vector<Point> vertices);
 
 
