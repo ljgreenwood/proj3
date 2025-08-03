@@ -1,4 +1,28 @@
-#include "preprocessing.h"
+#include "Octree.h"
+#include "KDTree.h"
+float KDTreeComparison(const KDTree& treeA, const KDTree& treeB) {
+        // distance from A to B
+        float max_dist_A_to_B = 0.0;
+        vector<Point> dataA = treeA.traverse();
+        for (const auto& pA : dataA) {
+            Point nearest_pB = treeB.nearestNeighbor(pA);
+            float dist = distance(pA, nearest_pB); // Euclidean distance
+            if (dist > max_dist_A_to_B) {
+                max_dist_A_to_B = dist;
+            }
+        }
+        // distance from B to A
+        float max_dist_B_to_A = 0.0;
+        vector<Point> dataB = treeB.traverse();
+        for (const auto& pB : dataB) {
+            Point nearest_pA = treeA.nearestNeighbor(pB);
+            double dist = distance(pB, nearest_pA);
+            if (dist > max_dist_B_to_A) {
+                max_dist_B_to_A = dist;
+            }
+        }
+        return std::max(max_dist_A_to_B, max_dist_B_to_A);
+    }
 
 int main() {
     string directory = "path/to/ModelNet10/class_name/"; // path to the directory containing the off files you want to load (by class here)
@@ -26,6 +50,7 @@ int main() {
     //Octree<data> createOctree(const std::vector<data>& data);
     //std::vector<std::string>> findSimilarTrees(maybe input map<file, tree>, std::string source);
 
+    
 
     return 0;
 }

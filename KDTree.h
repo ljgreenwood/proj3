@@ -1,5 +1,5 @@
 #pragma once
-#include "preprocessing.h"
+#include "generic.h"
 
 class KDTree {
     struct KDNode {
@@ -11,13 +11,15 @@ class KDTree {
     KDNode* root;
     KDNode* insertHelper(KDNode* node, const Point &point, int depth); 
     bool searchHelper(const KDNode* node, const Point &point, int depth); 
-    void traverseHelper(KDNode* node, std::vector<Point> &points);
-    void deleteKDTree(KDNode* node); 
+    void traverseHelper(const KDNode* node, std::vector<Point> &points) const;
+    void deleteKDTree(KDNode* node);
+    void nearestNeighborHelper(KDNode* node, const Point &point, Point &bestPoint, float &dist, int depth) const;
 
 public:
     KDTree() : root(nullptr) {}
     ~KDTree() { deleteKDTree(root); }
     void insert(const Point &point);
     bool search(const Point &point);
-    std::vector<Point> traverse();
+    Point nearestNeighbor(const Point &point) const;
+    vector<Point> traverse() const;
 };

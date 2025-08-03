@@ -1,4 +1,4 @@
-#include "preprocessing.h"
+#include "generic.h"
 
 bool loadOFF(const std::string& path, std::vector<Point>& vertices, std::vector<Face>& faces) {
     std::ifstream file(path); // since OFF are text files this is fine
@@ -31,29 +31,7 @@ float distance(const Point& p1, const Point& p2) {
     return dist;
 }
 
-float KDTreeComparison(const KDTree& treeA, const KDTree& treeB) {
-    // distance from A to B
-    float max_dist_A_to_B = 0.0;
-    dataA = treeA.traverse();
-     for (const auto& pA : dataA) {
-         Point nearest_pB = TreeB.nearestNeighbor(pA);
-         float dist = distance(pA, nearest_pB); // Euclidean distance
-         if (dist > max_dist_A_to_B) {
-             max_dist_A_to_B = dist;
-         }
-     }
-    // distance from B to A
-    float max_dist_B_to_A = 0.0;
-    dataB = treeB.travsere();
-    for (const auto& pB : dataB) {
-        Point nearest_pA = treeA.nearestNeighbor(pB);
-        double dist = calculateDistance(pB, nearest_pA);
-        if (dist > max_dist_B_to_A) {
-            max_dist_B_to_A = dist;
-        }
-    }
-    return std::max(max_dist_A_to_B, max_dist_B_to_A);
-}
+
 
 void makePC(vector<Point>& vertices, vector<Face>& faces, vector<Point>& pointCloud) {
     // add some logic here to sample points from the surface and create a pointcloud

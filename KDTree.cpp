@@ -30,7 +30,7 @@ bool KDTree::searchHelper(const KDNode* node, const Point &point, int depth) {
         return searchHelper(node->right, point, depth + 1);
 }
 
-void KDTree::traverseHelper(KDNode* node, vector<Point> &points) {
+void KDTree::traverseHelper(const KDNode* node, vector<Point> &points) const{
     if (node == nullptr)
         return;
     // Add current node's point to collection
@@ -49,18 +49,18 @@ void KDTree::deleteKDTree(KDNode* node) {
     delete node;
 }
 
-void KDTree::nearestNeighborHelper(KDNode* node, const Point &point, const Point &bestPoint, float &dist, int depth) {
+void KDTree::nearestNeighborHelper(KDNode* node, const Point &point, Point &bestPoint, float &dist, int depth) const {
     if (node == nullptr) return;
     // Get distance from the current point to the target point
     float currDist = distance(node->point, point);
     // Update best point if current point if closer
     if (currDist < dist) {
         dist = currDist;
-        bestPoint = nodePoint;
+        bestPoint = node->point;
     }
     int dim = depth % 3;
-    std::vector target = {point.x, point.y, point.z};
-    std::vector curr = {node->point.x, node->point.y, node->point.z};
+    vector target = {point.x, point.y, point.z};
+    vector curr = {node->point.x, node->point.y, node->point.z};
     KDNode* closer = nullptr;
     KDNode* farther = nullptr;
     // Deterime farther and closer node
@@ -90,13 +90,13 @@ bool KDTree::search(const Point &point) {
     return searchHelper(root, point, 0);
 }
 
-vector<Point> KDTree::traverse() {
+vector<Point> KDTree::traverse() const {
     vector<Point> points;
     traverseHelper(root, points);
     return points;
 }
 
-Point KDTree::nearestNeighbor(const Point &point) {
+Point KDTree::nearestNeighbor(const Point &point) const{
     Point bestPoint = root->point;
     float dist = distance(root->point, point);
     nearestNeighborHelper(root, point, bestPoint, dist, 0);

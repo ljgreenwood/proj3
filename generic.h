@@ -1,6 +1,4 @@
 #pragma once
-#include "KDTree.h"
-#include "Octree.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -16,6 +14,7 @@ struct Point {
     bool operator==(const Point& rhs) const {
         return (x == rhs.x && y == rhs.y && z == rhs.z);
     }
+    Point();
     Point(const Point& p) { // copy constructor
         this->x = p.x;
         this->y = p.y;
@@ -29,7 +28,6 @@ struct Face {
 
 bool loadOFF(const std::string& path, std::vector<Point>& vertices, std::vector<Face>& faces);
 float distance(const Point& p1, const Point& p2);
-float KDTreeComparison(const KDTree& treeA, const KDTree& treeB);
 void makePC(vector<Point>& vertices, vector<Face>& faces, vector<Point>& pointCloud);
 // void normalize(std::vector<Point> vertices);
 // void viewOFF(const string& path);
