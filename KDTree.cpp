@@ -49,6 +49,38 @@ void KDTree::deleteKDTree(KDNode* node) {
     delete node;
 }
 
+void KDTree::nearestNeighborHelper(KDNode* node, const Point &point, const Point &bestPoint, float &dist, int depth) {
+    if (node == nullptr) return;
+    // Get distance from the current point to the target point
+    float currDist = distance(node->point, point);
+    // Update best point if current point if closer
+    if (currDist < dist) {
+        dist = currDist;
+        bestPoint = nodePoint;
+    }
+    int dim = depth % 3;
+    std::vector target = {point.x, point.y, point.z};
+    std::vector curr = {node->point.x, node->point.y, node->point.z};
+    KDNode* closer = nullptr;
+    KDNode* farther = nullptr;
+    // Deterime father and closer node
+    if (target[dim] < curr[dim]) {
+        closer = node->left;
+        father = node->right;
+    }
+    else {
+        closer = node->right;
+        father = node->left;
+    }
+    // Neighbor search closer
+    nearestNeighborHelper(closer, point, bestPoint, dist, depth + 1);
+    // Check points on the other side of the splitting plane
+    float distPlane = target[dim] - curr[dim];
+    if (distPlane * distPlane < dist) { // Neighbor search farther
+        nearestNeighborHelper(father, point, bestPoint, dist, depth + 1);
+    }
+}
+
 /* ===== Public KDTree Functions ===== */
 void KDTree::insert(const Point &point) {
     root = insertHelper(root, point, 0);
@@ -62,4 +94,11 @@ vector<Point> KDTree::traverse() {
     vector<Point> points;
     traverseHelper(root, points);
     return points;
+}
+
+Point KDTree::nearestNeighbor(const Point &point) {
+    Point bestPoint = root->point;
+    float dist = distance(root->point, point);
+    nearestNeighborHelper(root, point, bestPoint, dist, 0);
+    return bestPoint;
 }

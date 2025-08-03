@@ -27,9 +27,9 @@ struct Face {
     std::vector<int> indices;
 };
 
-bool loadOFF(const string& path, vector<Point>& vertices, vector<Face>& faces);
-void viewOFF(const string& path);
-void makePC(vector<Point>& vertices, vector<Face>& faces, vector<Point>& pointCloud); 
+bool loadOFF(const std::string& path, std::vector<Point>& vertices, std::vector<Face>& faces);
+float distance(const Point& p1, const Point& p2);
+float KDTreeComparison(const KDTree& treeA, const KDTree& treeB);
+void makePC(vector<Point>& vertices, vector<Face>& faces, vector<Point>& pointCloud);
 // void normalize(std::vector<Point> vertices);
-
-
+// void viewOFF(const string& path);
