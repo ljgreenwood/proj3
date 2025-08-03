@@ -30,6 +30,8 @@ Octree::OctreeNode* Octree::insertHelper(OctreeNode* node, const Point &point) {
     
     // NOW THE CHAR HAS THE INDEX
 
+
+
 }
 
 /*
@@ -51,7 +53,7 @@ void Octree::traverseHelper(const OctreeNode* node, vector<Point> &points) {
 
 void Octree::deleteOctree(OctreeNode* node) {
     if (!node) return; // there is no tree to delete
-    if (node->children.size() == 0) delete node; // the node has no children
+    if (node->size == 0) delete node; // the node has no children
     else {// it has children
         for (OctreeNode* child : node->children) {
             deleteOctree(child);
