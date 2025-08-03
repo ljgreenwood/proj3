@@ -5,15 +5,13 @@ class Octree {
     struct OctreeNode { // each of these is effectively a tree but this is just encapsulation to have the helpers in one wrapper class
         int maxchildren = 8; // size limit for pushing back new children
         bool empty; 
-        Point point; // this is the midpoint of the region
+        Point center, frontRightTop, backLeftBottom; // this is the midpoint of the region
         vector<OctreeNode*> children; // each octree has eight subtree children
-        OctreeNode(const Point &middle, bool empty_) : point(middle), empty(empty_) {};
-        OctreeNode(const Point &frontRightTop, const Point& backLeftBottom, bool empty_) : empty(empty_) {
-            point.x = (frontRightTop.x + backLeftBottom.x) / 2.0f;
-            point.y = (frontRightTop.y + backLeftBottom.y) / 2.0f;
-            point.z = (frontRightTop.z + backLeftBottom.z) / 2.0f;
-        }; // constuctor with box bounds
-
+        OctreeNode(const Point &frontRightTop_, const Point& backLeftBottom_, bool empty_) : frontRightTop(frontRightTop_), backLeftBottom(backLeftBottom_), empty(empty_) { 
+            center.x = (frontRightTop.x + backLeftBottom.x) / 2.0f;
+            center.y = (frontRightTop.y + backLeftBottom.y) / 2.0f;
+            center.z = (frontRightTop.z + backLeftBottom.z) / 2.0f;
+        }; // constuctor with box bounds (finding center of box)
         // if in inserting we have found that we need to create a node in order to insert at a subdivision - we create with empty = true
         // when the node we are inserting IS the node that's midpoint defines the associated octant - empty = false
     };

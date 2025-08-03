@@ -10,6 +10,24 @@
     O(log N) 
 */
 Octree::OctreeNode* Octree::insertHelper(OctreeNode* node, const Point &point) {
+
+    // // centerxyz is
+    // // >>> backLeftBottom 000
+    // // <>> frontLeftBottom 001
+    // // ><> backRightBottom 010
+    // // <<> frontRightBottom 011
+    // // >>< backLeftTop 100
+    // // <>< frontLeftBottom 101
+    // // ><< backRightBottom 110
+    // // <<< frontRightBottom 111
+    // char index = 0; // index of the children array
+
+    // if (node->center.x > point.x) // back section
+        
+    // if (node->center.y > point.y) // left section
+
+    // if (node->center.z > point.z) // bottom section
+
 }
 
 /*
@@ -17,8 +35,9 @@ Octree::OctreeNode* Octree::insertHelper(OctreeNode* node, const Point &point) {
     O(log N)
 */
 bool Octree::searchHelper(const OctreeNode* node, const Point &point) {
-    if(node->point == point) return true;
+    if(node->center == point) return true;
     else {
+
         // use logic to find where it should be
 
     }
