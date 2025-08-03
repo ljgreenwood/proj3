@@ -3,11 +3,12 @@
 
 class Octree {
     struct OctreeNode { // each of these is effectively a tree but this is just encapsulation to have the helpers in one wrapper class
-        int maxchildren = 8; // size limit for pushing back new children
-        bool empty; 
+        static const int MAXCHILDREN = 8; // size limit for pushing back new children
+        int size; 
+        bool empty;
         Point center, frontRightTop, backLeftBottom; // this is the midpoint of the region
-        vector<OctreeNode*> children; // each octree has eight subtree children
-        OctreeNode(const Point &frontRightTop_, const Point& backLeftBottom_, bool empty_) : frontRightTop(frontRightTop_), backLeftBottom(backLeftBottom_), empty(empty_) { 
+        OctreeNode* children[MAXCHILDREN] = {nullptr};
+        OctreeNode(const Point &frontRightTop_, const Point& backLeftBottom_, bool empty_) : frontRightTop(frontRightTop_), backLeftBottom(backLeftBottom_), empty(empty_), size(0){ 
             center.x = (frontRightTop.x + backLeftBottom.x) / 2.0f;
             center.y = (frontRightTop.y + backLeftBottom.y) / 2.0f;
             center.z = (frontRightTop.z + backLeftBottom.z) / 2.0f;
