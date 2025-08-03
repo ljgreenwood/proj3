@@ -1,2 +1,35 @@
 proj3env/
 ModelNet10
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+ENV/
+backend/test_env/
+
+# Node.js
+node_modules/
+npm-debug.log*
+.npm
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
