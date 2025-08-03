@@ -11,8 +11,8 @@ class KDTree {
     KDNode* root;
     KDNode* insertHelper(KDNode* node, const Point &point, int depth); 
     bool searchHelper(const KDNode* node, const Point &point, int depth); 
-    void traverseHelper(KDNode* node, std::vector<Point> &points); 
-    void deleteKDTree(const KDNode* node); 
+    void traverseHelper(KDNode* node, vector<Point> &points); 
+    void deleteKDTree(KDNode* node); 
 
 public:
     KDTree() : root(nullptr) {}

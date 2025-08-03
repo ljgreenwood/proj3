@@ -21,9 +21,6 @@ struct Point {
         this->y = p.y;
         this->z = p.z;
     };
-    Point() { // default constructor
-
-    }
 };
 
 struct Face {

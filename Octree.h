@@ -5,16 +5,16 @@ class Octree {
         bool empty; 
         Point point; // this is the midpoint of the region
         vector<OctreeNode*> children ; // each octree has eight subtree children
-        OctreeNode() : empty(true) {};
-        OctreeNode(const Point &p) : point(p), children(8, nullptr), empty(false){
-        };
-
+        OctreeNode(const Point &p, bool empty_) : point(p), children(8, nullptr), empty(empty_) {};
+        // if in inserting we have found that we need to create a node in order to insert at a subdivision - we create with empty = true
+        // when the node we are inserting IS the node that's midpoint defines the associated octant - empty = false
     };
+
     OctreeNode* root;
-    OctreeNode* insertHelper(const OctreeNode* node, const Point &point);
+    OctreeNode* insertHelper(OctreeNode* node, const Point &point);
     bool searchHelper(const OctreeNode* node, const Point &point); 
     void traverseHelper(const OctreeNode* node, vector<Point> &points); 
-    void deleteOctree(const OctreeNode* node); // postorder traversal to delete all nodes
+    void deleteOctree(OctreeNode* node); // postorder traversal to delete all nodes
 
 public:
     Octree() : root(nullptr) {};
