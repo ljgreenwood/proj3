@@ -25,20 +25,20 @@ bool loadOFF(const std::string& path, std::vector<Point>& vertices, std::vector<
 
 // ONCE WE HAVE A POINT CLOUD WE CAN PROCEED AND INSERT AS FOLLOWS
 
-// May need to be changed depending on how we insert data into KDTree
-KDTree<Point> fillKD(const std::vector<Point>& vertices) {
-    KDTree<Point> tree;
-    for (Point p : vertices) {
-        tree.insert(p);
-    }
-    return tree;
-}
+// // May need to be changed depending on how we insert data into KDTree
+// KDTree<Point> fillKD(const std::vector<Point>& vertices) {
+//     KDTree<Point> tree;
+//     for (Point p : vertices) {
+//         tree.insert(p);
+//     }
+//     return tree;
+// }
 
-// May need to be changed depending on how we insert data into Octree
-Octree<Point> fillOct(const std::vector<Point>& vertices) {
-    Octree<int> tree;
-    for (Point p : vertices) {
-        tree.insert(p);
-    }
-    return tree;
-}
+// // May need to be changed depending on how we insert data into Octree
+// Octree<Point> fillOct(const std::vector<Point>& vertices) {
+//     Octree<int> tree;
+//     for (Point p : vertices) {
+//         tree.insert(p);
+//     }
+//     return tree;
+// }

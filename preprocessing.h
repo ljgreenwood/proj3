@@ -11,7 +11,7 @@
 using namespace std;
 
 struct Point {
-    float x, y, z;
+    float x, y, z; // we may need to make the doubles 
     // Equality operator overloading
     bool operator==(const Point& rhs) const {
         return (x == rhs.x && y == rhs.y && z == rhs.z);
@@ -21,6 +21,9 @@ struct Point {
         this->y = p.y;
         this->z = p.z;
     };
+    Point() { // default constructor
+
+    }
 };
 
 struct Face {
@@ -30,8 +33,5 @@ struct Face {
 bool loadOFF(const std::string& path, std::vector<Point>& vertices, std::vector<Face>& faces);
 void viewOFF(const std::string& path);
 void normalize(std::vector<Point> vertices);
-KDTree<Point> createKDTree(const std::vector<Point>& vertices);
-//Octree<data> createOctree(const std::vector<data>& data);
-//std::vector<std::string>> findSimilarTrees(maybe input map<file, tree>, std::string source);
 
 

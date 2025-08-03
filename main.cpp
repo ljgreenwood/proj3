@@ -23,5 +23,11 @@ int main() {
     // Start user driven program with UI, when user selects an OFF file, viewOFF(selected_file)
     // When user wants to find similar off files, using search and create collection of OFF files
     // viewOFF(collection[0]) if user hits next/prev viewOFF(collection[i + or - 1])
+
+    // KDTree<Point> createKDTree(const std::vector<Point>& vertices);
+    //Octree<data> createOctree(const std::vector<data>& data);
+    //std::vector<std::string>> findSimilarTrees(maybe input map<file, tree>, std::string source);
+
+
     return 0;
 }

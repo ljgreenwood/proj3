@@ -5,23 +5,19 @@ class KDTree {
     struct KDNode {
         Point point;
         KDNode *left, *right;
-        // KDNode Constructor
         KDNode(const Point &p) : point(p), left(nullptr), right(nullptr) {}
     };
 
     KDNode* root;
-    KDNode* insertHelper(KDNode* node, const Point &point, int depth); // Recursively called to insert node
-    bool searchHelper(const KDNode* node, const Point &point, int depth); // Recursively called to find node
-    void traverseHelper(KDNode* node, std::vector<Point> &points); // Recursively called to push each node's point into collection
-    void deleteKDTree(const KDNode* node); // Delete every node in KDTree
+    KDNode* insertHelper(KDNode* node, const Point &point, int depth); 
+    bool searchHelper(const KDNode* node, const Point &point, int depth); 
+    void traverseHelper(KDNode* node, std::vector<Point> &points); 
+    void deleteKDTree(const KDNode* node); 
 
 public:
-    // KDTree Constructor
     KDTree() : root(nullptr) {}
-    // KDTree Destructor
     ~KDTree() { deleteKDTree(root); }
-    // KDTree Operations
     void insert(const Point &point);
     bool search(const Point &point);
-    std::vector<Point> traverse();
+    vector<Point> traverse();
 };
