@@ -106,12 +106,13 @@ float Octree::compareOctreeNodes(OctreeNode* node1, OctreeNode* node2, float tol
     if (node1 == nullptr && node2 == nullptr) return 1.0; // Similar if both nodes are null
     if (node1 == nullptr || node2 == nullptr) return 0.0; // Not similar if one node is null and the other is not
     if (node1->isLeaf() && node2->isLeaf()) { // if theyre both leafs then they have data
-        return calculateNodeSimilarity(node1->getData(), node2->getData(), tolerance);
+        double total_similarity = 0.0f; 
+        for (int i = 0; i < 8; ++i) {
+            total_similarity += compareOctreeNodes(node1->getChild(i), node2->getChild(i), tolerance);
+        }
+        return total_similarity / 8.0f;
     }
     if (node1->isLeaf() != node2->isLeaf()) return 0.0; // if one is leaf and the other isnt
-    float total_similarity = 0.0;
-    for (int i = 0; i < 8; ++i) {
-        total_similarity += compareOctreeNodes(node1->getChild(i), node2->getChild(i), tolerance);
-    }
-    return total_similarity / 8.0;
+
+    
 }
