@@ -15,6 +15,7 @@ struct Point {
         return (x == rhs.x && y == rhs.y && z == rhs.z);
     }
     Point();
+    Point(float x_, float y_, float z_) : x(x_), y(y_), z(z_) {};
     Point(const Point& p) { // copy constructor
         this->x = p.x;
         this->y = p.y;
@@ -23,9 +24,9 @@ struct Point {
 };
 
 struct Face {
-    std::vector<int> indices;
+    vector<int> indices;
 };
 
-bool loadOFF(const std::string& path, std::vector<Point>& vertices, std::vector<Face>& faces);
+bool loadOFF(const string& path, vector<Point>& vertices, vector<Face>& faces);
 float distance(const Point& p1, const Point& p2);
 void makePC(vector<Point>& vertices, vector<Face>& faces, vector<Point>& pointCloud);

@@ -61,7 +61,7 @@ Octree fillOct(const std::vector<Point>& vertices) {
 int main(int argc, char* argv[]) {
     string source_dir = argv[1];
     string tree_toggle = argv[2];
-    int count = stoi[3];
+    int count = stoi(argv[3]);
 
     vector<Point> source_vertices; // vector of 3d points
     vector<Face> source_faces; // vector of face vectors
