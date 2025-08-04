@@ -31,8 +31,3 @@ float distance(const Point& p1, const Point& p2) {
     dist += (p1.z - p2.z) * (p1.z - p2.z);
     return dist;
 }
-/*
-void makePC(vector<Point>& vertices, vector<Face>& faces, vector<Point>& pointCloud) {
-    // add some logic here to sample points from the surface and create a pointcloud
-}
-*/

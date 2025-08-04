@@ -1,11 +1,10 @@
 #pragma once
-#include <iostream>
-#include <fstream>
 #include <vector>
 #include <string>
 #include <filesystem>
-#include <sstream>
 #include <cmath>
+#include <iostream>
+#include <fstream>
 using namespace std;
 
 struct Point {
@@ -34,4 +33,3 @@ struct Face {
 
 bool loadOFF(const string& path, vector<Point>& vertices, vector<Face>& faces);
 float distance(const Point& p1, const Point& p2);
-void makePC(vector<Point>& vertices, vector<Face>& faces, vector<Point>& pointCloud);

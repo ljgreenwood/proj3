@@ -1,4 +1,4 @@
-#include <Octree.h> 
+#include "Octree.h"
 
 void Octree::subdivide(OctreeNode* node) { // O(1)
      
@@ -30,7 +30,7 @@ void Octree::subdivide(OctreeNode* node) { // O(1)
     }
 }
 
-Octree::OctreeNode* Octree::insertHelper(OctreeNode* node, const Point &point) { // O(log n) 
+void Octree::insertHelper(OctreeNode* node, const Point &point) { // O(log n)
 
     if(!node->isLeaf()) { // node is internal (has children)
         insertHelper(node->children[getIndex(node, point)], point); // insert in the proper subquadrant
@@ -62,7 +62,6 @@ void Octree::traverseHelper(const OctreeNode* node, vector<Point> &accum) {
     if (node->isLeaf()) {
        for(const Point& point : node->contents) {
             accum.push_back(point);
-            cout << point.x << " : " << point.y << " : " << point.z << endl;
        }
     }
     else {
@@ -83,7 +82,7 @@ void Octree::deleteOctree(OctreeNode* node) {
     }
 }
 
-unsigned char Octree::getIndex(const OctreeNode* node, const Point &point) const { 
+unsigned char Octree::getIndex(const OctreeNode* node, const Point &point) const {
     // centerxyz is
     // >>> backLeftBottom 000
     // <>> frontLeftBottom 001
@@ -107,25 +106,38 @@ Octree::OctreeNode* Octree::getRoot() const {
     return root;
 }
 
-float Octree::calculateNodeSimilarity(Point node1_data, Point node2_data, float tolerance) {
-    if (node1_data == Point(0.0f, 0.0f, 0.0f) && node2_data == Point(0.0f, 0.0f, 0.0f)) return 1.0f; // Similar if both nodes data are zero
-    if (node1_data == Point(0.0f, 0.0f, 0.0f) || node2_data == Point(0.0f, 0.0f, 0.0f)) return 0.0f; // Not similar if one is zero and the other is not
-    float diff = distance(node1_data, node2_data);
-    if (diff <= tolerance) return 1.0f - (diff / tolerance);
-    return 0.0f;
+bool Octree::calculatePointSimilarity(const vector<Point> &points1, const vector<Point> &points2, float tolerance) {
+    if (points1.size() != 8 || points2.size() != 8) return false; //
+
+    for (int i = 0; i < 8; ++i) {
+        if (sqrt(distance(points1[i],points2[i])) > tolerance)
+            return false;
+    }
+    return true;
 }
 
-float Octree::compareOctreeNodes(OctreeNode* node1, OctreeNode* node2, float tolerance) {
-    if (node1 == nullptr && node2 == nullptr) return 1.0; // Similar if both nodes are null
-    if (node1 == nullptr || node2 == nullptr) return 0.0; // Not similar if one node is null and the other is not
-    if (node1->isLeaf() && node2->isLeaf()) { // if theyre both leafs then they have data
-        double total_similarity = 0.0f; 
-        for (int i = 0; i < 8; ++i) {
-            total_similarity += compareOctreeNodes(node1->getChild(i), node2->getChild(i), tolerance);
-        }
-        return total_similarity / 8.0f;
+void Octree::calculateNodeSimilarity(OctreeNode* node1, OctreeNode* node2, float tolerance, float &result, int &nodes, int &similar_nodes) {
+    if (node1 == nullptr && node2 == nullptr) return; // both nullptr, there similar
+    if (node1 == nullptr || node2 == nullptr) {
+        // One is null, the other isn't then count only the non-null as a node
+        nodes += (node1 != nullptr ? 1 : 0) + (node2 != nullptr ? 1 : 0);
+        return;
     }
-    if (node1->isLeaf() != node2->isLeaf()) return 0.0; // if one is leaf and the other isnt
+    nodes++;
+    if (calculatePointSimilarity(node1->contents, node2->contents, tolerance)) {
+        similar_nodes++;
+    }
+    for (int i = 0; i < 8; i++) {
+        calculateNodeSimilarity(node1->getChild(i), node2->getChild(i), tolerance, result, nodes, similar_nodes);
+    }
+}
 
-    
+bool Octree::compareOctree(OctreeNode* node1, OctreeNode* node2, float tolerance, float threshold) {
+    float result = 0;
+    int nodes = 0;
+    int similar_nodes = 0;
+    calculateNodeSimilarity(node1, node2, tolerance, result, nodes, similar_nodes);
+    if (nodes == 0) return true;
+    float similarity = 100.0f * similar_nodes / nodes;
+    return similarity >= threshold;
 }

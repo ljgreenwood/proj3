@@ -1,11 +1,11 @@
-#include <variant>
-
 #include "Octree.h"
 #include "KDTree.h"
 
-// Global variables that are thresholds for tree comparisons
-float KD_TOLERANCE = 0.1; // Lower is better
-float OCT_TOLERANCE = 0.7; // Higher is better
+// Variables that are used for tree comparisons
+float KD_TOLERANCE = 0.1; // Tolerance for point distance
+float OCT_TOLERANCE = 0.1; // Results with lower than tolerance mean similar points
+
+float OCT_THRESHOLD = 0.65; // Similarity threshold percentage, results with higher percentage are more similar
 
 bool KDTreeComparison(KDTree& treeA, KDTree& treeB) {
     // distance from A to B
@@ -35,10 +35,7 @@ bool KDTreeComparison(KDTree& treeA, KDTree& treeB) {
 }
 
 bool OctTreeComparison(Octree& treeA, Octree& treeB) {
-    if (Octree::compareOctreeNodes(treeA.getRoot(), treeB.getRoot(), OCT_TOLERANCE * 10) >= OCT_TOLERANCE) {
-        return true;
-    }
-    return false;
+    return Octree::compareOctree(treeA.getRoot(), treeB.getRoot(), OCT_TOLERANCE, OCT_THRESHOLD);
 }
 
 KDTree fillKD(const std::vector<Point>& vertices) {
@@ -48,7 +45,6 @@ KDTree fillKD(const std::vector<Point>& vertices) {
     }
     return tree;
 }
-
 
 Octree fillOct(const std::vector<Point>& vertices) {
     Octree tree;

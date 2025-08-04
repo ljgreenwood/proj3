@@ -20,7 +20,7 @@ class Octree {
     };
 
     OctreeNode* root;
-    OctreeNode* insertHelper(OctreeNode* node, const Point &point);
+    void insertHelper(OctreeNode* node, const Point &point);
     bool searchHelper(const OctreeNode* node, const Point &point); 
     void traverseHelper(const OctreeNode* node, vector<Point> &accum);
     void deleteOctree(OctreeNode* node); 
@@ -33,6 +33,8 @@ public:
     void insert(const Point& point) { root = insertHelper(root, point); };
     bool search(const Point& point) { return searchHelper(root, point); };
     OctreeNode* getRoot() const;
-    static float calculateNodeSimilarity(Point node1_data, Point node2_data, float tolerance);
-    static float compareOctreeNodes(OctreeNode* node1, OctreeNode* node2, float tolerance);
+
+    static bool calculatePointSimilarity(const vector<Point>& points1, const vector<Point>& points2, float tolerance);
+    static void calculateNodeSimilarity(OctreeNode* node1, OctreeNode* node2, float tolerance, float &result, int &nodes, int &similar_nodes);
+    static bool compareOctree(OctreeNode* node1, OctreeNode* node2, float tolerance, float threshold);
 };
