@@ -46,17 +46,30 @@ Octree::OctreeNode* Octree::insertHelper(OctreeNode* node, const Point &point) {
     }
 }
 
-bool Octree::searchHelper(const OctreeNode* node, const Point &point) {
-    if(node->center == point) return true;
+bool Octree::searchHelper(const OctreeNode* node, const Point &param) {
+    if (node->isLeaf()){
+       for (const Point& point : node->contents) {
+        if (point == param) return true;
+       }
+       return false;
+    }
     else {
-
-        // use logic to find where it should be
-
+        return searchHelper(node->children[getIndex(node, param)], param);
     }
 }
 
-void Octree::traverseHelper(const OctreeNode* node, vector<Point> &points) {
-
+void Octree::traverseHelper(const OctreeNode* node, vector<Point> &accum) {
+    if (node->isLeaf()) {
+       for(const Point& point : node->contents) {
+            accum.push_back(point);
+            cout << point.x << " : " << point.y << " : " << point.z << endl;
+       }
+    }
+    else {
+        for(const OctreeNode* child : node->children) {
+            traverseHelper(child, accum);
+        }
+    }
 }
 
 void Octree::deleteOctree(OctreeNode* node) {
@@ -70,7 +83,7 @@ void Octree::deleteOctree(OctreeNode* node) {
     }
 }
 
-unsigned char Octree::getIndex(OctreeNode* node, const Point &point){ 
+unsigned char Octree::getIndex(const OctreeNode* node, const Point &point) const { 
     // centerxyz is
     // >>> backLeftBottom 000
     // <>> frontLeftBottom 001
@@ -90,7 +103,7 @@ unsigned char Octree::getIndex(OctreeNode* node, const Point &point){
     return index;
 }
 
-Octree::OctreeNode* Octree::getRoot() {
+Octree::OctreeNode* Octree::getRoot() const {
     return root;
 }
 

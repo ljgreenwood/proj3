@@ -14,7 +14,7 @@ class Octree {
         }; // constructor with box bounds (finding center of box)
         // if in inserting we have found that we need to create a node in order to insert at a subdivision - we create with empty = true
         // when the node we are inserting IS the node that's midpoint defines the associated octant - empty = false
-        bool isLeaf() {return children[0] == nullptr;};
+        bool isLeaf() const {return children[0] == nullptr;} ;
         OctreeNode* getChild(int i) {return children[i];};
         vector<Point> getData() {return contents;};
     };
@@ -22,18 +22,17 @@ class Octree {
     OctreeNode* root;
     OctreeNode* insertHelper(OctreeNode* node, const Point &point);
     bool searchHelper(const OctreeNode* node, const Point &point); 
-    void traverseHelper(const OctreeNode* node, vector<Point> &points); 
+    void traverseHelper(const OctreeNode* node, vector<Point> &accum);
     void deleteOctree(OctreeNode* node); 
     void subdivide(OctreeNode* node); // function which will subdivide an octant into sub octants and create the subtrees dma
-    unsigned char getIndex(OctreeNode* node, const Point &point); // function which takes a node and a point and returns the index of that node's children that the point should be inserted into
-        
+    unsigned char getIndex(const OctreeNode* node, const Point &point) const; // function which takes a node and a point and returns the index of that node's children that the point should be inserted into
+
 public:
     Octree() : root(nullptr) {};
     ~Octree() { deleteOctree(root); }
     void insert(const Point& point) { root = insertHelper(root, point); };
     bool search(const Point& point) { return searchHelper(root, point); };
-    OctreeNode* getRoot();
-
+    OctreeNode* getRoot() const;
     static float calculateNodeSimilarity(Point node1_data, Point node2_data, float tolerance);
     static float compareOctreeNodes(OctreeNode* node1, OctreeNode* node2, float tolerance);
 };
