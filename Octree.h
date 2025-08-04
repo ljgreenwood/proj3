@@ -17,14 +17,13 @@ class Octree {
         vector<Point> getData() {return contents;};             // returns the vector of points (should only be used on leaves)
     };
 
-    OctreeNode* root; // root of Octree
-    void insertHelper(OctreeNode* node, const Point &point);            // given a point and node, try to insert - else recurse to proper suboctant
-    bool searchHelper(const OctreeNode* node, const Point &point);      // given a point and node, check if the point is in the contents, else go to proper suboctant
-    void traverseHelper(const OctreeNode* node, vector<Point> &accum);  // accumulate the nodes from left to right (octants 1->8) 
-    void deleteOctree(OctreeNode* node);    // delete the octree (called by destructor)
-    void subdivide(OctreeNode* node);       // function which will subdivide an octant into sub octants and create the subtrees (OctreeNode*) using dynamic memory - modifies children array
-    unsigned char getIndex(const OctreeNode* node, const Point &point) const;   // function which takes a node and a point and returns the index of that node's
-                                                                                // children array that the point should be inserted into
+    OctreeNode* root;
+    OctreeNode* insertHelper(OctreeNode* node, const Point &point); // given a point and node, try to insert - else recurse to proper suboctant
+    bool searchHelper(const OctreeNode* node, const Point &point); // given a point and node, check if the point is in the contents, else go to proper suboctant
+    void traverseHelper(const OctreeNode* node, vector<Point> &accum); // accumulate the nodes from left to right (octants 1->8) 
+    void deleteOctree(OctreeNode* node);  // delete the octree (called by destructor)
+    void subdivide(OctreeNode* node); // function which will subdivide an octant into sub octants and create the subtrees dma
+    unsigned char getIndex(const OctreeNode* node, const Point &point) const; // function which takes a node and a point and returns the index of that node's children that the point should be inserted into
 
 public:
     Octree() : root(nullptr) {};        // initializes the root to null (when inserting the first node - the bounds are needed)

@@ -29,10 +29,11 @@ export const apiService = {
     return response.data;
   },
 
-  async findSimilarModels(sourceModel: string, topK: number = 5): Promise<SimilarityResponse> {
+  async findSimilarModels(sourceModel: string, topK: number = 5, algorithm: string = 'kdtree'): Promise<SimilarityResponse> {
     const response = await apiClient.post('/models/similar', {
       source_model: sourceModel,
       top_k: topK,
+      algorithm: algorithm,
     });
     return response.data;
   },
