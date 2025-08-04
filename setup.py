@@ -16,19 +16,19 @@ def run_command(cmd, cwd=None):
     try:
         result = subprocess.run(cmd, shell=True, cwd=cwd, check=True, 
                               capture_output=True, text=True)
-        print(f"✅ {cmd}")
+        print(f"Success: {cmd}")
         return result
     except subprocess.CalledProcessError as e:
-        print(f"❌ {cmd} failed: {e.stderr}")
+        print(f"Error: {cmd} failed: {e.stderr}")
         return None
 
 def setup_backend():
     """Set up the FastAPI backend"""
-    print("🔧 Setting up backend...")
+    print("Setting up backend...")
     
     backend_dir = Path("backend")
     if not backend_dir.exists():
-        print("❌ Backend directory not found")
+        print("Error: Backend directory not found")
         return False
     
     # Create virtual environment
@@ -48,31 +48,31 @@ def setup_backend():
     static_dir = backend_dir / "static" / "models"
     static_dir.mkdir(parents=True, exist_ok=True)
     
-    print("✅ Backend setup complete")
+    print("Backend setup complete")
     return True
 
 def setup_frontend():
     """Set up the React frontend"""
-    print("🔧 Setting up frontend...")
+    print("Setting up frontend...")
     
     frontend_dir = Path("frontend")
     if not frontend_dir.exists():
-        print("❌ Frontend directory not found")
+        print("Error: Frontend directory not found")
         return False
     
     # Install npm dependencies
     run_command("npm install", cwd=frontend_dir)
     
-    print("✅ Frontend setup complete")
+    print("Frontend setup complete")
     return True
 
 def check_data_directory():
     """Check if data directory is properly set up"""
-    print("🔍 Checking data directory...")
+    print("Checking data directory...")
     
     data_dir = Path("data")
     if not data_dir.exists():
-        print("⚠️  Data directory not found. Please ensure your ModelNet10 data is available at ./data/")
+        print("Warning: Data directory not found. Please ensure your ModelNet10 data is available at ./data/")
         print("   You can create a symlink: ln -s /path/to/ModelNet10/ ./data")
         return False
     
@@ -80,18 +80,18 @@ def check_data_directory():
     categories = ['bathtub', 'bed', 'chair', 'desk', 'dresser', 'monitor', 'night_stand', 'sofa', 'table', 'toilet']
     found_categories = [d.name for d in data_dir.iterdir() if d.is_dir() and d.name in categories]
     
-    print(f"✅ Found {len(found_categories)} categories: {found_categories}")
+    print(f"Found {len(found_categories)} categories: {found_categories}")
     return len(found_categories) > 0
 
 def compile_cpp_code():
     """Compile the existing C++ preprocessing code"""
-    print("🔧 Compiling C++ preprocessing code...")
+    print("Compiling C++ preprocessing code...")
     
     cpp_files = ['KDTree.cpp', 'Octree.cpp', 'preprocessing.cpp', 'main.cpp']
     missing_files = [f for f in cpp_files if not Path(f).exists()]
     
     if missing_files:
-        print(f"⚠️  Missing C++ files: {missing_files}")
+        print(f"Warning: Missing C++ files: {missing_files}")
         return False
     
     # Basic compilation (you may need to adjust flags for your system)
@@ -99,10 +99,10 @@ def compile_cpp_code():
     result = run_command(compile_cmd)
     
     if result:
-        print("✅ C++ code compiled successfully")
+        print("C++ code compiled successfully")
         return True
     else:
-        print("⚠️  C++ compilation failed. You may need to adjust compiler flags.")
+        print("Warning: C++ compilation failed. You may need to adjust compiler flags.")
         return False
 
 def create_integration_script():
@@ -166,11 +166,11 @@ if __name__ == "__main__":
     with open("integrate_cpp.py", "w") as f:
         f.write(integration_script)
     
-    print("✅ Created integration script: integrate_cpp.py")
+    print("Created integration script: integrate_cpp.py")
 
 def main():
     """Main setup function"""
-    print("🚀 Setting up 3D Model Similarity Search Web Application")
+    print("Setting up 3D Model Similarity Search Web Application")
     print("=" * 60)
     
     # Check data directory
@@ -189,26 +189,26 @@ def main():
     create_integration_script()
     
     print("\n" + "=" * 60)
-    print("📋 Setup Summary:")
-    print(f"   Data Directory: {'✅' if data_ok else '❌'}")
-    print(f"   Backend:        {'✅' if backend_ok else '❌'}")
-    print(f"   Frontend:       {'✅' if frontend_ok else '❌'}")
-    print(f"   C++ Code:       {'✅' if cpp_ok else '⚠️ '}")
+    print("Setup Summary:")
+    print(f"   Data Directory: {'OK' if data_ok else 'FAILED'}")
+    print(f"   Backend:        {'OK' if backend_ok else 'FAILED'}")
+    print(f"   Frontend:       {'OK' if frontend_ok else 'FAILED'}")
+    print(f"   C++ Code:       {'OK' if cpp_ok else 'WARNING'}")
     
     if backend_ok and frontend_ok:
-        print("\n🎉 Web application is ready!")
+        print("\nWeb application is ready!")
         print("\nTo start the application:")
         print("1. Terminal 1: cd backend && python main.py")
         print("2. Terminal 2: cd frontend && npm run dev")
         print("3. Open http://localhost:3000")
         
         if not data_ok:
-            print("\n⚠️  Don't forget to set up your data directory!")
+            print("\nWarning: Don't forget to set up your data directory!")
         
         if not cpp_ok:
-            print("\n⚠️  C++ preprocessing not compiled - similarity search will use mock data")
+            print("\nWarning: C++ preprocessing not compiled - similarity search will use mock data")
     else:
-        print("\n❌ Setup incomplete. Please check the errors above.")
+        print("\nSetup incomplete. Please check the errors above.")
 
 if __name__ == "__main__":
     main()
