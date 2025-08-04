@@ -27,4 +27,3 @@ before loading the OFF Files in the viewer script, ensure that you have symlink 
 ex: ln -s /home/lucas/OneDrive/Project3_Datatset/ModelNet10/ /home/lucas/proj3/ModelNet10
 
 this command creates a symlink from the left path called ModelNet10 (path to the symlink is on the right)
-

@@ -1,20 +1,30 @@
-#include <preprocessing.cpp> // Update me
+#pragma once
+#include "generic.h"
 
-struct OctreeNode {
-    AABB bounds;
-    std::vector<Point> points;
-    OctreeNode* children[8];
+class Octree {
+    struct OctreeNode { // each of these is effectively a tree but this is just encapsulation to have the helpers in one wrapper class
+        int maxchildren = 8; // size limit for pushing back new children
+        bool empty; 
+        Point center, frontRightTop, backLeftBottom; // this is the midpoint of the region
+        vector<OctreeNode*> children; // each octree has eight subtree children
+        OctreeNode(const Point &frontRightTop_, const Point& backLeftBottom_, bool empty_) : frontRightTop(frontRightTop_), backLeftBottom(backLeftBottom_), empty(empty_) { 
+            center.x = (frontRightTop.x + backLeftBottom.x) / 2.0f;
+            center.y = (frontRightTop.y + backLeftBottom.y) / 2.0f;
+            center.z = (frontRightTop.z + backLeftBottom.z) / 2.0f;
+        }; // constuctor with box bounds (finding center of box)
+        // if in inserting we have found that we need to create a node in order to insert at a subdivision - we create with empty = true
+        // when the node we are inserting IS the node that's midpoint defines the associated octant - empty = false
+    };
+
+    OctreeNode* root;
+    OctreeNode* insertHelper(OctreeNode* node, const Point &point);
+    bool searchHelper(const OctreeNode* node, const Point &point); 
+    void traverseHelper(const OctreeNode* node, vector<Point> &points); 
+    void deleteOctree(OctreeNode* node); // postorder traversal to delete all nodes
+
+public:
+    Octree() : root(nullptr) {};
+    ~Octree() { deleteOctree(root); }
+    void insert(const Point& point) { root = insertHelper(root, point); };
+    bool search(const Point& point) { return searchHelper(root, point); };
 };
-
-/*
-void insert(OctreeNode* node, const Point& point, int depth) {
-    if (depth == MAX_DEPTH || node->points.size() < threshold) {
-        node->points.push_back(point);
-        return;
-    }
-    int octant = getOctant(node->bounds, point);
-    if (!node->children[octant])
-        node->children[octant] = new OctreeNode(subdivide(node->bounds, octant));
-    insert(node->children[octant], point, depth+1);
-}
-*/

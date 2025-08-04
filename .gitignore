@@ -1,4 +1,5 @@
 proj3env/
+<<<<<<< HEAD
 ModelNet10
 
 # Python
@@ -33,3 +34,7 @@ Thumbs.db
 *.tmp
 *.temp
 .cache/
+=======
+ModelNet10/
+ModelNet10.zip
+>>>>>>> main

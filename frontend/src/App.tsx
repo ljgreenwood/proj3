@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react'; // eslint-disable-line
 import {
   Paper,
   Typography,
@@ -44,10 +44,31 @@ function App() {
   const [currentSimilarIndex, setCurrentSimilarIndex] = useState<number>(0);
   const [currentSimilarGeometry, setCurrentSimilarGeometry] = useState<ModelGeometry | null>(null);
   const [loading, setLoading] = useState(false);
+  
+  // Geometry cache to avoid re-fetching
+  const [geometryCache, setGeometryCache] = useState<Map<string, ModelGeometry>>(new Map());
 
   useEffect(() => {
     loadInitialData();
   }, []);
+
+  const loadGeometryWithCache = useCallback(async (filename: string): Promise<ModelGeometry> => {
+    // Check if geometry is already cached
+    if (geometryCache.has(filename)) {
+      console.log(`Using cached geometry for ${filename}`);
+      return geometryCache.get(filename)!;
+    }
+
+    // Load geometry from API
+    console.log(`Loading geometry for ${filename}`);
+    const geometry = await apiService.getModelGeometry(filename);
+    
+    // Cache the result
+    setGeometryCache(prev => new Map(prev).set(filename, geometry));
+    console.log(`Cached geometry for ${filename}. Cache size: ${geometryCache.size + 1}`);
+    
+    return geometry;
+  }, [geometryCache]);
 
   const loadInitialData = async () => {
     try {
@@ -78,13 +99,14 @@ function App() {
   const handleModelSelect = async (model: ModelInfo) => {
     try {
       setLoading(true);
-      const geometry = await apiService.getModelGeometry(model.filename);
       setSelectedModel1(model);
-      setModelGeometry1(geometry);
       // Clear similar models when selecting a new primary model
       setSimilarModels([]);
       setCurrentSimilarIndex(0);
       setCurrentSimilarGeometry(null);
+      
+      const geometry = await loadGeometryWithCache(model.filename);
+      setModelGeometry1(geometry);
     } catch (error) {
       console.error('Error loading model geometry:', error);
     } finally {
@@ -98,12 +120,25 @@ function App() {
     try {
       setLoading(true);
       const response = await apiService.findSimilarModels(selectedModel1.filename, 5);
+      
       if (response.similar_models.length > 0) {
         setSimilarModels(response.similar_models);
         setCurrentSimilarIndex(0);
-        // Load geometry for the first similar model
-        const geometry = await apiService.getModelGeometry(response.similar_models[0].filename);
-        setCurrentSimilarGeometry(geometry);
+        
+        // Load geometry for the first similar model immediately
+        const firstGeometry = await loadGeometryWithCache(response.similar_models[0].filename);
+        setCurrentSimilarGeometry(firstGeometry);
+        
+        // Preload all other similar model geometries in the background
+        console.log('Preloading similar model geometries...');
+        response.similar_models.slice(1).forEach(async (model, index) => {
+          try {
+            await loadGeometryWithCache(model.filename);
+            console.log(`Preloaded geometry ${index + 2}/${response.similar_models.length}: ${model.filename}`);
+          } catch (error) {
+            console.error(`Failed to preload geometry for ${model.filename}:`, error);
+          }
+        });
       }
     } catch (error) {
       console.error('Error finding similar models:', error);
@@ -119,13 +154,11 @@ function App() {
     setCurrentSimilarIndex(newIndex);
     
     try {
-      setLoading(true);
-      const geometry = await apiService.getModelGeometry(similarModels[newIndex].filename);
+      // Since we preloaded geometries, this should be instant from cache
+      const geometry = await loadGeometryWithCache(similarModels[newIndex].filename);
       setCurrentSimilarGeometry(geometry);
     } catch (error) {
       console.error('Error loading similar model geometry:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -136,13 +169,11 @@ function App() {
     setCurrentSimilarIndex(newIndex);
     
     try {
-      setLoading(true);
-      const geometry = await apiService.getModelGeometry(similarModels[newIndex].filename);
+      // Since we preloaded geometries, this should be instant from cache
+      const geometry = await loadGeometryWithCache(similarModels[newIndex].filename);
       setCurrentSimilarGeometry(geometry);
     } catch (error) {
       console.error('Error loading similar model geometry:', error);
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -1,10 +1,11 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 # from fastapi.staticfiles import StaticFiles  # Not needed - removed static file serving
 from pydantic import BaseModel
 import json
 import os
 import subprocess
+import time
 from typing import List, Dict, Any
 import open3d as o3d
 import numpy as np
@@ -38,6 +39,12 @@ class ModelGeometry(BaseModel):
     faces: List[List[int]]
     normals: List[List[float]]
 
+# Cache storage
+_model_cache: List[ModelInfo] = []
+_model_cache_timestamp: float = 0
+_geometry_cache: Dict[str, Dict[str, Any]] = {}
+CACHE_DURATION = 300  # 5 minutes for model list cache
+
 def get_data_dir() -> str:
     """Get the absolute path to the data directory"""
     # Get the directory where this script is located (backend/)
@@ -45,6 +52,37 @@ def get_data_dir() -> str:
     # Go up one level to project root, then into data/
     data_dir = backend_dir.parent / "data"
     return str(data_dir)
+
+def is_model_cache_expired() -> bool:
+    """Check if the model cache has expired"""
+    return time.time() - _model_cache_timestamp > CACHE_DURATION
+
+def get_cached_models() -> List[ModelInfo]:
+    """Get cached model list or scan directory if cache is expired"""
+    global _model_cache, _model_cache_timestamp
+    
+    if not _model_cache or is_model_cache_expired():
+        print("DEBUG: Refreshing model cache...")
+        _model_cache = scan_models_directory()
+        _model_cache_timestamp = time.time()
+        print(f"DEBUG: Cached {len(_model_cache)} models")
+    else:
+        print(f"DEBUG: Using cached models ({len(_model_cache)} models)")
+    
+    return _model_cache
+
+def get_cached_geometry(filename: str) -> Dict[str, Any]:
+    """Get cached geometry or load from file if not cached"""
+    if filename not in _geometry_cache:
+        print(f"DEBUG: Loading and caching geometry for {filename}")
+        data_dir = get_data_dir()
+        off_path = os.path.join(data_dir, filename.replace('/', os.sep))
+        _geometry_cache[filename] = off_to_json(off_path)
+        print(f"DEBUG: Geometry cached. Cache size: {len(_geometry_cache)}")
+    else:
+        print(f"DEBUG: Using cached geometry for {filename}")
+    
+    return _geometry_cache[filename]
 
 def off_to_json(off_path: str) -> Dict[str, Any]:
     """Convert OFF file to JSON format compatible with Three.js"""
@@ -135,7 +173,7 @@ async def test():
 @app.get("/list")
 async def list_direct():
     print("DEBUG: Direct /list endpoint called!")
-    return scan_models_directory()
+    return get_cached_models()
 
 @app.get("/categories")  
 async def categories_direct():
@@ -153,7 +191,7 @@ async def categories_direct():
 async def list_models():
     """Get list of all available 3D models"""
     print("DEBUG: Correct /models/list endpoint called!")
-    return scan_models_directory()
+    return get_cached_models()
 
 @app.get("/models/categories")
 async def get_categories():
@@ -169,8 +207,9 @@ async def get_categories():
     return {"categories": categories}
 
 @app.get("/models/geometry/{category}/{split}/{filename}")
-async def get_model_geometry(category: str, split: str, filename: str):
+async def get_model_geometry(category: str, split: str, filename: str, response: Response):
     """Get 3D model geometry data for Three.js rendering"""
+    model_path = f"{category}/{split}/{filename}"
     data_dir = get_data_dir()
     off_path = os.path.join(data_dir, category, split, filename)
     
@@ -178,7 +217,12 @@ async def get_model_geometry(category: str, split: str, filename: str):
         raise HTTPException(status_code=404, detail="Model file not found")
     
     try:
-        geometry_data = off_to_json(off_path)
+        geometry_data = get_cached_geometry(model_path)
+        
+        # Add cache headers for browser-level caching
+        response.headers["Cache-Control"] = "public, max-age=3600"  # Cache for 1 hour
+        response.headers["ETag"] = f'"{hash(model_path)}"'  # Simple ETag based on filename
+        
         return geometry_data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -198,7 +242,7 @@ async def find_similar_models(request: SimilarityRequest):
     category = request.source_model.split('/')[0]
     
     # Mock similarity search - return other models from same category
-    models = scan_models_directory()
+    models = get_cached_models()
     similar_models = [
         model for model in models 
         if model.category == category and model.filename != request.source_model
