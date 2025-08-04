@@ -1,0 +1,5 @@
+[33mcc74bfa[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mwebsite-ui[m[33m, [m[1;31morigin/website-ui[m[33m)[m Web app prototype using React frontend and FastAPI backend
+[33m67a9fe8[m[33m ([m[1;32mmain[m[33m)[m adding symlink functionality and updating README.md - rebooting system to fix OpenGL conflicts with wayland window manager
+[33m6bac1e4[m Revert "Updated offViewer to be a function with two off file path parameters. Will visualize first path to the left and second to the right. Also cleaned up un-needed code."
+[33md00ed42[m Fixed one issue, may require more methods if finding similar trees requires it.
+[33m8b05aa5[m Updated to allow for side by side viewing of two 3D objects.
