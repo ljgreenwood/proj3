@@ -12,7 +12,7 @@ class Octree {
             center.x = (frontRightTop.x + backLeftBottom.x) / 2.0f;
             center.y = (frontRightTop.y + backLeftBottom.y) / 2.0f;
             center.z = (frontRightTop.z + backLeftBottom.z) / 2.0f;
-        }; // constuctor with box bounds (finding center of box)
+        }; // constructor with box bounds (finding center of box)
         // if in inserting we have found that we need to create a node in order to insert at a subdivision - we create with empty = true
         // when the node we are inserting IS the node that's midpoint defines the associated octant - empty = false
     };
@@ -28,4 +28,8 @@ public:
     ~Octree() { deleteOctree(root); }
     void insert(const Point& point) { root = insertHelper(root, point); };
     bool search(const Point& point) { return searchHelper(root, point); };
+    OctreeNode* getRoot();
+
+    static float calculateNodeSimilarity(float node1_data, float node2_data, float tolerance);
+    static float compareOctreeNodes(OctreeNode* node1, OctreeNode* node2, float tolerance);
 };

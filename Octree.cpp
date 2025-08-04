@@ -1,4 +1,4 @@
-#include <Octree.h> 
+#include "Octree.h"
 
 /*
     insert:: if a node exists then return else insert recursively
@@ -60,3 +60,28 @@ void Octree::deleteOctree(OctreeNode* node) {
     }
 }
 
+Octree::OctreeNode* Octree::getRoot() {
+    return root;
+}
+
+float Octree::calculateNodeSimilarity(float node1_data, float node2_data, float tolerance) {
+    if (node1_data == 0.0f && node2_data == 0.0f) return 1.0f; // Similar if both nodes data are zero
+    if (node1_data == 0.0f || node2_data == 0.0f) return 0.0f; // Not similar if one is zero and the other is not
+    float diff = std::abs(node1_data - node2_data);
+    if (diff <= tolerance) return 1.0f - (diff / tolerance);
+    return 0.0f;
+}
+
+float Octree::compareOctreeNodes(OctreeNode* node1, OctreeNode* node2, float tolerance) {
+    if (node1 == nullptr && node2 == nullptr) return 1.0; // Similar if both nodes are null
+    if (node1 == nullptr || node2 == nullptr) return 0.0; // Not similar if one node is null and the other is not
+    if (node1->isLeaf() && node2->isLeaf()) {
+        return calculateNodeSimilarity(node1->getData(), node2->getData(), tolerance);
+    }
+    if (node1->isLeaf() != node2->isLeaf()) return 0.0;
+    float total_similarity = 0.0;
+    for (int i = 0; i < 8; ++i) {
+        total_similarity += compareOctreeNodes(node1->getChild(i), node2->getChild(i), tolerance);
+    }
+    return total_similarity / 8.0;
+}

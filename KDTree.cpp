@@ -1,7 +1,7 @@
 #include "KDTree.h"
 
 /* ===== Private KDTree Functions ===== */
-KDTree::KDNode* KDTree::insertHelper(KDNode* node, const Point &point, const int depth) {
+KDTree::KDNode* KDTree::insertHelper(KDNode* node, const Point &point, int depth) {
     // If node does not exist, create new node
     if (node == nullptr) return new KDNode(point);
     int dim = depth % 3;
@@ -30,7 +30,7 @@ bool KDTree::searchHelper(const KDNode* node, const Point &point, int depth) {
         return searchHelper(node->right, point, depth + 1);
 }
 
-void KDTree::traverseHelper(const KDNode* node, vector<Point> &points) const{
+void KDTree::traverseHelper(const KDNode* node, vector<Point> &points) {
     if (node == nullptr)
         return;
     // Add current node's point to collection
@@ -49,7 +49,7 @@ void KDTree::deleteKDTree(KDNode* node) {
     delete node;
 }
 
-void KDTree::nearestNeighborHelper(KDNode* node, const Point &point, Point &bestPoint, float &dist, int depth) const {
+void KDTree::nearestNeighborHelper(KDNode* node, const Point &point, Point &bestPoint, float &dist, int depth) {
     if (node == nullptr) return;
     // Get distance from the current point to the target point
     float currDist = distance(node->point, point);
@@ -63,7 +63,7 @@ void KDTree::nearestNeighborHelper(KDNode* node, const Point &point, Point &best
     vector curr = {node->point.x, node->point.y, node->point.z};
     KDNode* closer = nullptr;
     KDNode* farther = nullptr;
-    // Deterime farther and closer node
+    // Determine farther and closer node
     if (target[dim] < curr[dim]) {
         closer = node->left;
         farther = node->right;
@@ -90,13 +90,13 @@ bool KDTree::search(const Point &point) {
     return searchHelper(root, point, 0);
 }
 
-vector<Point> KDTree::traverse() const {
+vector<Point> KDTree::traverse() {
     vector<Point> points;
     traverseHelper(root, points);
     return points;
 }
 
-Point KDTree::nearestNeighbor(const Point &point) const{
+Point KDTree::nearestNeighbor(const Point &point) {
     Point bestPoint = root->point;
     float dist = distance(root->point, point);
     nearestNeighborHelper(root, point, bestPoint, dist, 0);

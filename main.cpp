@@ -1,28 +1,42 @@
 #include "Octree.h"
 #include "KDTree.h"
-float KDTreeComparison(const KDTree& treeA, const KDTree& treeB) {
-        // distance from A to B
-        float max_dist_A_to_B = 0.0;
-        vector<Point> dataA = treeA.traverse();
-        for (const auto& pA : dataA) {
-            Point nearest_pB = treeB.nearestNeighbor(pA);
-            float dist = distance(pA, nearest_pB); // Euclidean distance
-            if (dist > max_dist_A_to_B) {
-                max_dist_A_to_B = dist;
-            }
+
+float KD_TOLERANCE = 0.1;
+float OCT_TOLERANCE = 0.7;
+
+bool KDTreeComparison(KDTree& treeA, KDTree& treeB) {
+    // distance from A to B
+    float max_dist_A_to_B = 0.0;
+    vector<Point> dataA = treeA.traverse();
+    for (const auto& pA : dataA) {
+        Point nearest_pB = treeB.nearestNeighbor(pA);
+        float dist = distance(pA, nearest_pB);
+        if (dist > max_dist_A_to_B) {
+            max_dist_A_to_B = dist;
         }
-        // distance from B to A
-        float max_dist_B_to_A = 0.0;
-        vector<Point> dataB = treeB.traverse();
-        for (const auto& pB : dataB) {
-            Point nearest_pA = treeA.nearestNeighbor(pB);
-            double dist = distance(pB, nearest_pA);
-            if (dist > max_dist_B_to_A) {
-                max_dist_B_to_A = dist;
-            }
-        }
-        return std::max(max_dist_A_to_B, max_dist_B_to_A);
     }
+    // distance from B to A
+    float max_dist_B_to_A = 0.0;
+    vector<Point> dataB = treeB.traverse();
+    for (const auto& pB : dataB) {
+        Point nearest_pA = treeA.nearestNeighbor(pB);
+        float dist = distance(pB, nearest_pA);
+        if (dist > max_dist_B_to_A) {
+            max_dist_B_to_A = dist;
+        }
+    }
+    if (std::max(max_dist_A_to_B, max_dist_B_to_A) <= KD_TOLERANCE) {
+        return true;
+    }
+    return false;
+}
+
+bool OctTreeComparison(Octree& treeA, Octree& treeB) {
+    if (Octree::compareOctreeNodes(treeA.getRoot(), treeB.getRoot(), OCT_TOLERANCE * 10) >= OCT_TOLERANCE) {
+        return true;
+    }
+    return false;
+}
 
 int main() {
     string directory = "path/to/ModelNet10/class_name/"; // path to the directory containing the off files you want to load (by class here)

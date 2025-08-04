@@ -31,8 +31,6 @@ float distance(const Point& p1, const Point& p2) {
     return dist;
 }
 
-
-
 void makePC(vector<Point>& vertices, vector<Face>& faces, vector<Point>& pointCloud) {
     // add some logic here to sample points from the surface and create a pointcloud
 }
