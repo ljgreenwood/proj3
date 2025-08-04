@@ -39,8 +39,12 @@ npm -v
 ```
 
 #### WINDOWS
-
-
+* Go to https://nodejs.org/en/download and download and run the installer 
+* Ensure everything installed properly 
+```bash
+node -v
+npm -v
+```
 
 
 
