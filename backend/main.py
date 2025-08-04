@@ -8,6 +8,7 @@ import subprocess
 from typing import List, Dict, Any
 import open3d as o3d
 import numpy as np
+from pathlib import Path
 
 app = FastAPI(title="3D Model Similarity Search API")
 
@@ -37,6 +38,14 @@ class ModelGeometry(BaseModel):
     faces: List[List[int]]
     normals: List[List[float]]
 
+def get_data_dir() -> str:
+    """Get the absolute path to the data directory"""
+    # Get the directory where this script is located (backend/)
+    backend_dir = Path(__file__).parent
+    # Go up one level to project root, then into data/
+    data_dir = backend_dir.parent / "data"
+    return str(data_dir)
+
 def off_to_json(off_path: str) -> Dict[str, Any]:
     """Convert OFF file to JSON format compatible with Three.js"""
     try:
@@ -62,9 +71,9 @@ def off_to_json(off_path: str) -> Dict[str, Any]:
 def scan_models_directory() -> List[ModelInfo]:
     """Scan the data directory and return model information"""
     models = []
-    data_dir = "../data"
+    data_dir = get_data_dir()
     
-    print(f"DEBUG: Looking for data directory at: {os.path.abspath(data_dir)}")
+    print(f"DEBUG: Looking for data directory at: {data_dir}")
     print(f"DEBUG: Data directory exists: {os.path.exists(data_dir)}")
     
     if not os.path.exists(data_dir):
@@ -131,7 +140,7 @@ async def list_direct():
 @app.get("/categories")  
 async def categories_direct():
     print("DEBUG: Direct /categories endpoint called!")
-    data_dir = "../data"
+    data_dir = get_data_dir()
     categories = []
     
     if os.path.exists(data_dir):
@@ -150,7 +159,7 @@ async def list_models():
 async def get_categories():
     """Get list of available model categories"""
     print("DEBUG: Correct /models/categories endpoint called!")
-    data_dir = "../data"
+    data_dir = get_data_dir()
     categories = []
     
     if os.path.exists(data_dir):
@@ -162,7 +171,8 @@ async def get_categories():
 @app.get("/models/geometry/{category}/{split}/{filename}")
 async def get_model_geometry(category: str, split: str, filename: str):
     """Get 3D model geometry data for Three.js rendering"""
-    off_path = f"../data/{category}/{split}/{filename}"
+    data_dir = get_data_dir()
+    off_path = os.path.join(data_dir, category, split, filename)
     
     if not os.path.exists(off_path):
         raise HTTPException(status_code=404, detail="Model file not found")
@@ -179,7 +189,8 @@ async def find_similar_models(request: SimilarityRequest):
     # TODO: Integrate with C++ preprocessing code
     # For now, return mock similar models from same category
     
-    source_path = f"../data/{request.source_model}"
+    data_dir = get_data_dir()
+    source_path = os.path.join(data_dir, request.source_model.replace('/', os.sep))
     if not os.path.exists(source_path):
         raise HTTPException(status_code=404, detail="Source model not found")
     
@@ -202,8 +213,9 @@ async def find_similar_models(request: SimilarityRequest):
 @app.get("/models/compare/{model1_path:path}/vs/{model2_path:path}")
 async def compare_models(model1_path: str, model2_path: str):
     """Compare two models side by side (similar to Jupyter notebook functionality)"""
-    full_path1 = f"../data/{model1_path}"
-    full_path2 = f"../data/{model2_path}"
+    data_dir = get_data_dir()
+    full_path1 = os.path.join(data_dir, model1_path.replace('/', os.sep))
+    full_path2 = os.path.join(data_dir, model2_path.replace('/', os.sep))
     
     if not os.path.exists(full_path1) or not os.path.exists(full_path2):
         raise HTTPException(status_code=404, detail="One or both model files not found")

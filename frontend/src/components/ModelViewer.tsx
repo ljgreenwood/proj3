@@ -18,111 +18,142 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ geometry, position }) => {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Initialize Three.js scene
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xf0f0f0);
-    sceneRef.current = scene;
-
-    // Initialize camera
-    const camera = new THREE.PerspectiveCamera(
-      75,
-      containerRef.current.clientWidth / containerRef.current.clientHeight,
-      0.1,
-      1000
-    );
-    camera.position.set(0, 0, 3);
-    cameraRef.current = camera;
-
-    // Initialize renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    rendererRef.current = renderer;
-
-    containerRef.current.appendChild(renderer.domElement);
-
-    // Add lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambientLight);
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(10, 10, 5);
-    directionalLight.castShadow = true;
-    scene.add(directionalLight);
-
-    // Handle window resize
-    const handleResize = () => {
-      if (containerRef.current && cameraRef.current && rendererRef.current) {
-        const width = containerRef.current.clientWidth;
-        const height = containerRef.current.clientHeight;
-        
-        cameraRef.current.aspect = width / height;
-        cameraRef.current.updateProjectionMatrix();
-        rendererRef.current.setSize(width, height);
+    const initializeScene = () => {
+      if (!containerRef.current) return;
+      
+      // Wait for container to have stable dimensions
+      const width = containerRef.current.clientWidth;
+      const height = containerRef.current.clientHeight;
+      
+      if (width <= 0 || height <= 0) {
+        // Retry after a short delay if dimensions aren't ready
+        setTimeout(initializeScene, 50);
+        return;
       }
-    };
 
-    window.addEventListener('resize', handleResize);
+      // Initialize Three.js scene
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xf0f0f0);
+      sceneRef.current = scene;
 
-    // Mouse controls for rotation
-    let isDragging = false;
-    let previousMousePosition = { x: 0, y: 0 };
+      // Initialize camera with stable dimensions
+      const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+      camera.position.set(0, 0, 3);
+      cameraRef.current = camera;
 
-    const handleMouseDown = (event: MouseEvent) => {
-      isDragging = true;
-      previousMousePosition = { x: event.clientX, y: event.clientY };
-    };
+      // Initialize renderer with stable dimensions
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(width, height);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      rendererRef.current = renderer;
 
-    const handleMouseMove = (event: MouseEvent) => {
-      if (!isDragging || !meshRef.current) return;
+      containerRef.current.appendChild(renderer.domElement);
 
-      const deltaMove = {
-        x: event.clientX - previousMousePosition.x,
-        y: event.clientY - previousMousePosition.y,
+      // Add lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      scene.add(ambientLight);
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      directionalLight.position.set(10, 10, 5);
+      directionalLight.castShadow = true;
+      scene.add(directionalLight);
+
+      // Handle resize with ResizeObserver for better container size detection
+      const handleResize = () => {
+        if (containerRef.current && cameraRef.current && rendererRef.current) {
+          const width = containerRef.current.clientWidth;
+          const height = containerRef.current.clientHeight;
+          
+          // Only resize if we have valid dimensions
+          if (width > 0 && height > 0) {
+            cameraRef.current.aspect = width / height;
+            cameraRef.current.updateProjectionMatrix();
+            rendererRef.current.setSize(width, height);
+          }
+        }
       };
 
-      meshRef.current.rotation.y += deltaMove.x * 0.01;
-      meshRef.current.rotation.x += deltaMove.y * 0.01;
-
-      previousMousePosition = { x: event.clientX, y: event.clientY };
-    };
-
-    const handleMouseUp = () => {
-      isDragging = false;
-    };
-
-    renderer.domElement.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-
-    // Animation loop
-    const animate = () => {
-      frameRef.current = requestAnimationFrame(animate);
+      // Use both window resize and ResizeObserver for comprehensive size detection
+      window.addEventListener('resize', handleResize);
       
-      if (rendererRef.current && sceneRef.current && cameraRef.current) {
-        rendererRef.current.render(sceneRef.current, cameraRef.current);
+      let resizeObserver: ResizeObserver | null = null;
+      if (containerRef.current) {
+        resizeObserver = new ResizeObserver(() => {
+          // Small delay to ensure layout is stable
+          setTimeout(handleResize, 10);
+        });
+        resizeObserver.observe(containerRef.current);
       }
-    };
-    animate();
 
-    // Cleanup
-    return () => {
-      if (frameRef.current) {
-        cancelAnimationFrame(frameRef.current);
-      }
-      
-      window.removeEventListener('resize', handleResize);
-      renderer.domElement.removeEventListener('mousedown', handleMouseDown);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-      
-      if (containerRef.current && renderer.domElement) {
-        containerRef.current.removeChild(renderer.domElement);
-      }
-      
-      renderer.dispose();
+      // Mouse controls for rotation
+      let isDragging = false;
+      let previousMousePosition = { x: 0, y: 0 };
+
+      const handleMouseDown = (event: MouseEvent) => {
+        isDragging = true;
+        previousMousePosition = { x: event.clientX, y: event.clientY };
+      };
+
+      const handleMouseMove = (event: MouseEvent) => {
+        if (!isDragging || !meshRef.current) return;
+
+        const deltaMove = {
+          x: event.clientX - previousMousePosition.x,
+          y: event.clientY - previousMousePosition.y,
+        };
+
+        meshRef.current.rotation.y += deltaMove.x * 0.01;
+        meshRef.current.rotation.x += deltaMove.y * 0.01;
+
+        previousMousePosition = { x: event.clientX, y: event.clientY };
+      };
+
+      const handleMouseUp = () => {
+        isDragging = false;
+      };
+
+      renderer.domElement.addEventListener('mousedown', handleMouseDown);
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+
+      // Animation loop
+      const animate = () => {
+        frameRef.current = requestAnimationFrame(animate);
+        
+        if (rendererRef.current && sceneRef.current && cameraRef.current) {
+          rendererRef.current.render(sceneRef.current, cameraRef.current);
+        }
+      };
+      animate();
+
+      // Return cleanup function
+      return () => {
+        if (frameRef.current) {
+          cancelAnimationFrame(frameRef.current);
+        }
+        
+        window.removeEventListener('resize', handleResize);
+        renderer.domElement.removeEventListener('mousedown', handleMouseDown);
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+        
+        if (resizeObserver) {
+          resizeObserver.disconnect();
+        }
+        
+        if (containerRef.current && renderer.domElement) {
+          containerRef.current.removeChild(renderer.domElement);
+        }
+        
+        renderer.dispose();
+      };
     };
+
+    // Start initialization with a small delay to ensure container is rendered
+    const cleanup = initializeScene();
+    
+    return cleanup;
   }, []);
 
   useEffect(() => {
