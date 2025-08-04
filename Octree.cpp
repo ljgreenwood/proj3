@@ -33,6 +33,13 @@ void Octree::subdivide(OctreeNode* node) { // O(1)
 }
 
 void Octree::insertHelper(OctreeNode* node, const Point &point) { // O(log n)
+    if (node == nullptr) {
+        // Create root node with reasonable bounds
+        const Point max(200.0f, 200.0f, 200.0f);
+        const Point min(-200.0f, -200.0f, -200.0f);
+        node = new OctreeNode(min, max);
+        node->contents.push_back(point);
+    }
 
     if(node->isLeaf()) { // node is a leaf
         if(node->contents.size() < OctreeNode::MAXCHILDREN) {

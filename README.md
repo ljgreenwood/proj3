@@ -7,7 +7,7 @@ VERSIONS ::
 * NVM (if using) :: 0.39.7
 * Python :: 3.11.0
 
-### Dataset (ModelNet10)
+#### Dataset (ModelNet10)
 1. Go to https://modelnet.cs.princeton.edu/
 2. Find the "ModelNet10.zip" highlighted in orange. Right click and open in new tab. This will start the download.
 3. git clone https://github.com/ljgreenwood/proj3.git
