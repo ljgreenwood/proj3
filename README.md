@@ -1,24 +1,18 @@
 # MeshMatcher
 
-### Dataset (ModelNet10)
-* https://modelnet.cs.princeton.edu/
-
 ### Setup Instructions
 VERSIONS ::
 * NODE :: 22.17.0
 * NPM :: 10.9.2
 * NVM (if using) :: 0.39.7
 * Python :: 3.11.0
-* Pip :: 
 
-git clone https://github.com/ljgreenwood/proj3.git
-
-before loading the OFF Files in the viewer script, ensure that you have symlink directory called data which points to the onedrive folder
-
-ex: ln -s /home/lucas/OneDrive/Project3_Datatset/ModelNet10/ /home/lucas/proj3/ModelNet10
-
-this command creates a symlink from the left path called ModelNet10 (path to the symlink is on the right)
-
+### Dataset (ModelNet10)
+1. Go to https://modelnet.cs.princeton.edu/
+2. Find the "ModelNet10.zip" highlighted in orange. Right click and open in new tab. This will start the download.
+3. git clone https://github.com/ljgreenwood/proj3.git
+4. move the ModelNet10.zip into the director and unzip. In the unzipped contents move the folder "ModelNet10" into the root directory of proj3
+5. you're all set!
 
 #### Arch Linux
 * install nvm using paru or equivalent

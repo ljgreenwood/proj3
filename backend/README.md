@@ -20,6 +20,9 @@ pip install -r requirements.txt
 python main.py
 ```
 
+4. Stop backend with Ctrl+C:
+
+
 The API will be available at `http://localhost:8000` 
 ## API Endpoints
 

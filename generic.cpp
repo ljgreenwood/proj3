@@ -24,7 +24,7 @@ bool loadOFF(const std::string& path, std::vector<Point>& vertices, std::vector<
     return true;
 }
 
-float distance(const Point& p1, const Point& p2) {
+float distance(const Point& p1, const Point& p2) { // distance between 3d points O(1)
     float dist = 0.0;
     dist += (p1.x - p2.x) * (p1.x - p2.x);
     dist += (p1.y - p2.y) * (p1.y - p2.y);

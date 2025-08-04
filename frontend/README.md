@@ -23,5 +23,7 @@ npm install
 npm run dev
 ```
 
+4. End frontend server with 'q + Enter'
+
 The application will be available at `http://localhost:3000`.
 
