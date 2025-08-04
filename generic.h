@@ -9,8 +9,7 @@ using namespace std;
 
 struct Point { // all operations O(1)
     float x, y, z;
-    Point(); // makes an empty point
-    Point(float x_, float y_, float z_) : x(x_), y(y_), z(z_) {}; // initialize given xyz
+    Point(float x_ = 0.0f, float y_ = 0.0f, float z_= 0.0f) : x(x_), y(y_), z(z_) {}; // initialize given xyz
     Point(const Point& p) { // copy constructor from another poitn
         this->x = p.x;
         this->y = p.y;
