@@ -11,9 +11,7 @@ using namespace std;
 struct Point {
     float x, y, z; // we may need to make the doubles 
     // Equality operator overloading
-    bool operator==(const Point& rhs) const {
-        return (x == rhs.x && y == rhs.y && z == rhs.z);
-    }
+    
     Point();
     Point(float x_, float y_, float z_) : x(x_), y(y_), z(z_) {};
     Point(const Point& p) { // copy constructor
@@ -21,6 +19,13 @@ struct Point {
         this->y = p.y;
         this->z = p.z;
     };
+    bool operator==(const Point& rhs) const {
+        return (x == rhs.x && y == rhs.y && z == rhs.z);
+    };
+    Point operator-(const Point& rhs) const {
+        return Point(x - rhs.x, y - rhs.y, z - rhs.z);
+    }
+    
 };
 
 struct Face {

@@ -95,9 +95,9 @@ Octree::OctreeNode* Octree::getRoot() {
 }
 
 float Octree::calculateNodeSimilarity(Point node1_data, Point node2_data, float tolerance) {
-    if (node1_data == 0.0f && node2_data == 0.0f) return 1.0f; // Similar if both nodes data are zero
-    if (node1_data == 0.0f || node2_data == 0.0f) return 0.0f; // Not similar if one is zero and the other is not
-    float diff = std::abs(node1_data - node2_data);
+    if (node1_data == Point(0.0f, 0.0f, 0.0f) && node2_data == Point(0.0f, 0.0f, 0.0f)) return 1.0f; // Similar if both nodes data are zero
+    if (node1_data == Point(0.0f, 0.0f, 0.0f) || node2_data == Point(0.0f, 0.0f, 0.0f)) return 0.0f; // Not similar if one is zero and the other is not
+    float diff = distance(node1_data, node2_data);
     if (diff <= tolerance) return 1.0f - (diff / tolerance);
     return 0.0f;
 }

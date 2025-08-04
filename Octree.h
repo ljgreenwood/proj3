@@ -26,7 +26,7 @@ class Octree {
     void deleteOctree(OctreeNode* node); 
     void subdivide(OctreeNode* node); // function which will subdivide an octant into sub octants and create the subtrees dma
     unsigned char getIndex(OctreeNode* node, const Point &point); // function which takes a node and a point and returns the index of that node's children that the point should be inserted into
-
+        
 public:
     Octree() : root(nullptr) {};
     ~Octree() { deleteOctree(root); }
