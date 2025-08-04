@@ -1,6 +1,5 @@
 proj3env/
-<<<<<<< HEAD
-ModelNet10
+ModelNet10/
 
 # Python
 __pycache__/
@@ -8,10 +7,7 @@ __pycache__/
 *.pyo
 *.pyd
 .Python
-venv/
-env/
-ENV/
-backend/test_env/
+backend/backend_env/
 
 # Node.js
 node_modules/
@@ -34,7 +30,3 @@ Thumbs.db
 *.tmp
 *.temp
 .cache/
-=======
-ModelNet10/
-ModelNet10.zip
->>>>>>> main
