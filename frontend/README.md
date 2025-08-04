@@ -11,12 +11,14 @@ React + TypeScript + Three.js frontend for the 3D model similarity search applic
 
 ## Setup
 
-1. Install dependencies:
+1. Enter the command prompt/ terminal and change directories to "frontend"
+
+2. Install dependencies:
 ```bash
 npm install
 ```
 
-2. Start development server:
+3. Start development server:
 ```bash
 npm run dev
 ```

@@ -82,13 +82,14 @@ int main(int argc, char* argv[]) {
 
         if (!loadOFF(entry.path().string(), vertices, faces)) continue;
         if (tree_toggle == "kdtree") {
-            KDTree KDTree =  fillKD(vertices);
-            KDTreeComparison(source_KDTree,  KDTree);
-            filenames.push_back(entry.path().string());
+            KDTree kd = fillKD(vertices);
+            if (KDTreeComparison(source_KDTree,  kd)) {
+                filenames.push_back(entry.path().string());
+            }
         }
         else if (tree_toggle == "octree") {
-            Octree Octree = fillOct(vertices);
-             if (OctTreeComparison(source_Octree, Octree)) {
+            Octree oct = fillOct(vertices);
+             if (OctTreeComparison(source_Octree, oct)) {
                  filenames.push_back(entry.path().string());
              }
         }

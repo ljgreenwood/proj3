@@ -30,7 +30,7 @@ class Octree {
 public:
     Octree() : root(nullptr) {};
     ~Octree() { deleteOctree(root); }
-    void insert(const Point& point) { root = insertHelper(root, point); };
+    void insert(const Point& point) { insertHelper(root, point); };
     bool search(const Point& point) { return searchHelper(root, point); };
     OctreeNode* getRoot() const;
 

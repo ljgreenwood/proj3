@@ -1,7 +1,8 @@
 #include "Octree.h"
 
 void Octree::subdivide(OctreeNode* node) { // O(1)
-     
+    
+    /* create an array of lower bounds points */
     Point blbs[8] = {
         {node->backLeftBottom.x, node->backLeftBottom.y, node->backLeftBottom.z},
         {node->center.x,         node->backLeftBottom.y, node->backLeftBottom.z},
@@ -13,6 +14,7 @@ void Octree::subdivide(OctreeNode* node) { // O(1)
         {node->center.x,         node->center.y,         node->center.z}
     };
 
+    /* create an array of upper bound points */
     Point frt[8] = {
         {node->center.x,         node->center.y,         node->center.z},
         {node->frontRightTop.x,  node->center.y,         node->center.z},
@@ -24,18 +26,15 @@ void Octree::subdivide(OctreeNode* node) { // O(1)
         {node->frontRightTop.x,  node->frontRightTop.y,  node->frontRightTop.z}
     };
     
-
+    /* create the OctreeNode children according to the bounds given in the array */
     for (int i = 0; i < OctreeNode::MAXCHILDREN; ++i) {
-        node->children[i] = new OctreeNode(blbs[i], frt[i]);
+        node->children[i] = new OctreeNode(blbs[i], frt[i]); // DYNAMICALLY ALLOCATED
     }
 }
 
 void Octree::insertHelper(OctreeNode* node, const Point &point) { // O(log n)
 
-    if(!node->isLeaf()) { // node is internal (has children)
-        insertHelper(node->children[getIndex(node, point)], point); // insert in the proper subquadrant
-    }
-    else { // node is a leaf
+    if(node->isLeaf()) { // node is a leaf
         if(node->contents.size() < OctreeNode::MAXCHILDREN) {
             node->contents.push_back(point); // now the point has been added
         }
@@ -43,6 +42,9 @@ void Octree::insertHelper(OctreeNode* node, const Point &point) { // O(log n)
             subdivide(node); // modifies the children
             node->children[getIndex(node, point)]->contents.push_back(point);
         }
+    }
+    else {   // node is internal
+        insertHelper(node->children[getIndex(node, point)], point); // insert in the proper subquadrant
     }
 }
 
