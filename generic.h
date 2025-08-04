@@ -7,13 +7,10 @@
 #include <fstream>
 using namespace std;
 
-struct Point {
-    float x, y, z; // we may need to make the doubles 
-    // Equality operator overloading
-    
-    Point();
-    Point(float x_, float y_, float z_) : x(x_), y(y_), z(z_) {};
-    Point(const Point& p) { // copy constructor
+struct Point { // all operations O(1)
+    float x, y, z;
+    Point(float x_ = 0.0f, float y_ = 0.0f, float z_= 0.0f) : x(x_), y(y_), z(z_) {}; // initialize given xyz
+    Point(const Point& p) { // copy constructor from another poitn
         this->x = p.x;
         this->y = p.y;
         this->z = p.z;
