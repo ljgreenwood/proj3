@@ -54,6 +54,9 @@ Octree fillOct(const std::vector<Point>& vertices) {
     return tree;
 }
 
+/**
+ * ./executable <source_dir> <tree_toggle_boolean> <count>
+ */
 int main(int argc, char* argv[]) {
     string source_dir = argv[1];
     string tree_toggle = argv[2];
