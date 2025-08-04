@@ -46,12 +46,12 @@ _geometry_cache: Dict[str, Dict[str, Any]] = {}
 CACHE_DURATION = 300  # 5 minutes for model list cache
 
 def get_data_dir() -> str:
-    """Get the absolute path to the data directory"""
+    """Get the absolute path to the ModelNet10 directory"""
     # Get the directory where this script is located (backend/)
     backend_dir = Path(__file__).parent
-    # Go up one level to project root, then into data/
-    data_dir = backend_dir.parent / "data"
-    return str(data_dir)
+    # Go up one level to project root, then into ModelNet10/
+    modelnet_dir = backend_dir.parent / "ModelNet10"
+    return str(modelnet_dir)
 
 def is_model_cache_expired() -> bool:
     """Check if the model cache has expired"""
@@ -75,8 +75,8 @@ def get_cached_geometry(filename: str) -> Dict[str, Any]:
     """Get cached geometry or load from file if not cached"""
     if filename not in _geometry_cache:
         print(f"DEBUG: Loading and caching geometry for {filename}")
-        data_dir = get_data_dir()
-        off_path = os.path.join(data_dir, filename.replace('/', os.sep))
+        modelnet_dir = get_data_dir()
+        off_path = os.path.join(modelnet_dir, filename.replace('/', os.sep))
         _geometry_cache[filename] = off_to_json(off_path)
         print(f"DEBUG: Geometry cached. Cache size: {len(_geometry_cache)}")
     else:
@@ -107,15 +107,15 @@ def off_to_json(off_path: str) -> Dict[str, Any]:
         raise HTTPException(status_code=500, detail=f"Error converting OFF file: {str(e)}")
 
 def scan_models_directory() -> List[ModelInfo]:
-    """Scan the data directory and return model information"""
+    """Scan the ModelNet10 directory and return model information"""
     models = []
     data_dir = get_data_dir()
     
-    print(f"DEBUG: Looking for data directory at: {data_dir}")
-    print(f"DEBUG: Data directory exists: {os.path.exists(data_dir)}")
+    print(f"DEBUG: Looking for ModelNet10 directory at: {data_dir}")
+    print(f"DEBUG: ModelNet10 directory exists: {os.path.exists(data_dir)}")
     
     if not os.path.exists(data_dir):
-        print(f"DEBUG: Data directory not found at {data_dir}")
+        print(f"DEBUG: ModelNet10 directory not found at {data_dir}")
         return models
     
     categories = os.listdir(data_dir)
@@ -178,12 +178,12 @@ async def list_direct():
 @app.get("/categories")  
 async def categories_direct():
     print("DEBUG: Direct /categories endpoint called!")
-    data_dir = get_data_dir()
+    modelnet_dir = get_data_dir()
     categories = []
     
-    if os.path.exists(data_dir):
-        categories = [name for name in os.listdir(data_dir) 
-                     if os.path.isdir(os.path.join(data_dir, name))]
+    if os.path.exists(modelnet_dir):
+        categories = [name for name in os.listdir(modelnet_dir) 
+                     if os.path.isdir(os.path.join(modelnet_dir, name))]
     
     return {"categories": categories}
 
@@ -197,12 +197,12 @@ async def list_models():
 async def get_categories():
     """Get list of available model categories"""
     print("DEBUG: Correct /models/categories endpoint called!")
-    data_dir = get_data_dir()
+    modelnet_dir = get_data_dir()
     categories = []
     
-    if os.path.exists(data_dir):
-        categories = [name for name in os.listdir(data_dir) 
-                     if os.path.isdir(os.path.join(data_dir, name))]
+    if os.path.exists(modelnet_dir):
+        categories = [name for name in os.listdir(modelnet_dir) 
+                     if os.path.isdir(os.path.join(modelnet_dir, name))]
     
     return {"categories": categories}
 
@@ -210,8 +210,8 @@ async def get_categories():
 async def get_model_geometry(category: str, split: str, filename: str, response: Response):
     """Get 3D model geometry data for Three.js rendering"""
     model_path = f"{category}/{split}/{filename}"
-    data_dir = get_data_dir()
-    off_path = os.path.join(data_dir, category, split, filename)
+    modelnet_dir = get_data_dir()
+    off_path = os.path.join(modelnet_dir, category, split, filename)
     
     if not os.path.exists(off_path):
         raise HTTPException(status_code=404, detail="Model file not found")
@@ -233,8 +233,8 @@ async def find_similar_models(request: SimilarityRequest):
     # TODO: Integrate with C++ preprocessing code
     # For now, return mock similar models from same category
     
-    data_dir = get_data_dir()
-    source_path = os.path.join(data_dir, request.source_model.replace('/', os.sep))
+    modelnet_dir = get_data_dir()
+    source_path = os.path.join(modelnet_dir, request.source_model.replace('/', os.sep))
     if not os.path.exists(source_path):
         raise HTTPException(status_code=404, detail="Source model not found")
     
@@ -257,9 +257,9 @@ async def find_similar_models(request: SimilarityRequest):
 @app.get("/models/compare/{model1_path:path}/vs/{model2_path:path}")
 async def compare_models(model1_path: str, model2_path: str):
     """Compare two models side by side (similar to Jupyter notebook functionality)"""
-    data_dir = get_data_dir()
-    full_path1 = os.path.join(data_dir, model1_path.replace('/', os.sep))
-    full_path2 = os.path.join(data_dir, model2_path.replace('/', os.sep))
+    modelnet_dir = get_data_dir()
+    full_path1 = os.path.join(modelnet_dir, model1_path.replace('/', os.sep))
+    full_path2 = os.path.join(modelnet_dir, model2_path.replace('/', os.sep))
     
     if not os.path.exists(full_path1) or not os.path.exists(full_path2):
         raise HTTPException(status_code=404, detail="One or both model files not found")
