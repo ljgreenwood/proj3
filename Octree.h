@@ -15,6 +15,8 @@ class Octree {
         // if in inserting we have found that we need to create a node in order to insert at a subdivision - we create with empty = true
         // when the node we are inserting IS the node that's midpoint defines the associated octant - empty = false
         bool isLeaf() {return children[0] == nullptr;};
+        OctreeNode* getChild(int i) {return children[i];};
+        vector<Point> getData() {return contents;};
     };
 
     OctreeNode* root;
@@ -32,6 +34,6 @@ public:
     bool search(const Point& point) { return searchHelper(root, point); };
     OctreeNode* getRoot();
 
-    static float calculateNodeSimilarity(float node1_data, float node2_data, float tolerance);
+    static float calculateNodeSimilarity(Point node1_data, Point node2_data, float tolerance);
     static float compareOctreeNodes(OctreeNode* node1, OctreeNode* node2, float tolerance);
 };

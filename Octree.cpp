@@ -46,10 +46,6 @@ Octree::OctreeNode* Octree::insertHelper(OctreeNode* node, const Point &point) {
     }
 }
 
-/*
-    search node for point (midpoint of the region) - if not find which octant and search in that subtree (if the root is empty or the intended child is null then return false)
-    O(log N)
-*/
 bool Octree::searchHelper(const OctreeNode* node, const Point &point) {
     if(node->center == point) return true;
     else {
@@ -92,4 +88,30 @@ unsigned char Octree::getIndex(OctreeNode* node, const Point &point){
     if (node->center.z > point.z) index &= 0b011; // bottom section       
 
     return index;
+}
+
+Octree::OctreeNode* Octree::getRoot() {
+    return root;
+}
+
+float Octree::calculateNodeSimilarity(Point node1_data, Point node2_data, float tolerance) {
+    if (node1_data == 0.0f && node2_data == 0.0f) return 1.0f; // Similar if both nodes data are zero
+    if (node1_data == 0.0f || node2_data == 0.0f) return 0.0f; // Not similar if one is zero and the other is not
+    float diff = std::abs(node1_data - node2_data);
+    if (diff <= tolerance) return 1.0f - (diff / tolerance);
+    return 0.0f;
+}
+
+float Octree::compareOctreeNodes(OctreeNode* node1, OctreeNode* node2, float tolerance) {
+    if (node1 == nullptr && node2 == nullptr) return 1.0; // Similar if both nodes are null
+    if (node1 == nullptr || node2 == nullptr) return 0.0; // Not similar if one node is null and the other is not
+    if (node1->isLeaf() && node2->isLeaf()) { // if theyre both leafs then they have data
+        return calculateNodeSimilarity(node1->getData(), node2->getData(), tolerance);
+    }
+    if (node1->isLeaf() != node2->isLeaf()) return 0.0; // if one is leaf and the other isnt
+    float total_similarity = 0.0;
+    for (int i = 0; i < 8; ++i) {
+        total_similarity += compareOctreeNodes(node1->getChild(i), node2->getChild(i), tolerance);
+    }
+    return total_similarity / 8.0;
 }
