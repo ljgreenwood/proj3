@@ -33,6 +33,7 @@ class ModelInfo(BaseModel):
 class SimilarityRequest(BaseModel):
     source_model: str
     top_k: int = 5
+    algorithm: str = "kdtree"  # Algorithm choice: 'kdtree' or 'octree'
 
 class ModelGeometry(BaseModel):
     vertices: List[List[float]]
@@ -83,6 +84,24 @@ def get_cached_geometry(filename: str) -> Dict[str, Any]:
         print(f"DEBUG: Using cached geometry for {filename}")
     
     return _geometry_cache[filename]
+
+def write_geometry_to_off(geometry: Dict[str, Any], filepath: str):
+    """Write geometry data back to OFF file format for C++ processing"""
+    vertices = geometry['vertices']
+    faces = geometry['faces']
+    
+    with open(filepath, 'w') as f:
+        # Write OFF header
+        f.write("OFF\n")
+        f.write(f"{len(vertices)} {len(faces)} 0\n")
+        
+        # Write vertices
+        for vertex in vertices:
+            f.write(f"{vertex[0]} {vertex[1]} {vertex[2]}\n")
+        
+        # Write faces
+        for face in faces:
+            f.write(f"{len(face)} {' '.join(map(str, face))}\n")
 
 def off_to_json(off_path: str) -> Dict[str, Any]:
     """Convert OFF file to JSON format compatible with Three.js"""
@@ -229,29 +248,138 @@ async def get_model_geometry(category: str, split: str, filename: str, response:
 
 @app.post("/models/similar")
 async def find_similar_models(request: SimilarityRequest):
-    """Find similar models using preprocessing features"""
-    # TODO: Integrate with C++ preprocessing code
-    # For now, return mock similar models from same category
+    """Find similar models using C++ algorithms with geometry caching"""
     
-    modelnet_dir = get_data_dir()
-    source_path = os.path.join(modelnet_dir, request.source_model.replace('/', os.sep))
-    if not os.path.exists(source_path):
-        raise HTTPException(status_code=404, detail="Source model not found")
+    # Load and cache source model geometry once
+    print(f"DEBUG: Starting similarity search for {request.source_model}")
+    print(f"DEBUG: Using {request.algorithm.upper()} algorithm")
     
-    # Extract category from source model path
-    category = request.source_model.split('/')[0]
+    try:
+        source_geometry = get_cached_geometry(request.source_model)
+        print(f"DEBUG: Source geometry loaded/cached - {len(source_geometry['vertices'])} vertices")
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=f"Source model not found: {e}")
     
-    # Mock similarity search - return other models from same category
-    models = get_cached_models()
-    similar_models = [
-        model for model in models 
-        if model.category == category and model.filename != request.source_model
-    ][:request.top_k]
+    # Get all available models to compare against
+    all_models = get_cached_models()
+    model_scores = []  # List of (model, similarity_score) tuples
+    
+    search_start_time = time.time()
+    print(f"DEBUG: Comparing against {len(all_models)} total models")
+    
+    # Create temporary files for C++ processing (reuse source file)
+    temp_dir = "temp_similarity"
+    os.makedirs(temp_dir, exist_ok=True)
+    source_temp_path = os.path.join(temp_dir, "source.off")
+    compare_temp_path = os.path.join(temp_dir, "compare.off")
+    
+    # Write source geometry to temp file once
+    write_geometry_to_off(source_geometry, source_temp_path)
+    print(f"DEBUG: Source geometry written to temp file")
+    
+    # Compare against each model 
+    for model in all_models:
+        if model.filename == request.source_model:
+            continue  # Skip comparing with itself
+            
+        try:
+            start_time = time.time()
+            
+            if request.algorithm == "kdtree":
+                # KDTree: Use direct file access with proper working directory
+                modelnet_dir = get_data_dir()
+                source_direct_path = os.path.join(modelnet_dir, request.source_model.replace('/', os.sep))
+                compare_direct_path = os.path.join(modelnet_dir, model.filename.replace('/', os.sep))
+                
+                if not os.path.exists(compare_direct_path):
+                    continue
+                
+                # Convert to relative paths from project root
+                project_root = os.path.dirname(os.getcwd())  # Parent of backend/
+                source_rel = os.path.relpath(source_direct_path, project_root)
+                compare_rel = os.path.relpath(compare_direct_path, project_root)
+                
+                # Use full path to executable to avoid "file not found" issues
+                exe_path = os.path.join(project_root, "similarity_search.exe")
+                cmd = [exe_path, source_rel, compare_rel, request.algorithm]
+                
+                # DEBUG: Print exact command and working directory
+                print(f"DEBUG: Running command: {' '.join(cmd)}")
+                print(f"DEBUG: Working directory: {project_root}")
+                print(f"DEBUG: Executable exists: {os.path.exists(exe_path)}")
+                print(f"DEBUG: Source path exists: {os.path.exists(source_direct_path)}")
+                print(f"DEBUG: Compare path exists: {os.path.exists(compare_direct_path)}")
+                    
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=15, cwd=project_root)
+                
+            else:
+                # Octree: Use cached system (works fine)
+                compare_geometry = get_cached_geometry(model.filename)
+                write_geometry_to_off(compare_geometry, compare_temp_path)
+                
+                result = subprocess.run([
+                    "../similarity_search.exe",
+                    source_temp_path,
+                    compare_temp_path,
+                    request.algorithm
+                ], capture_output=True, text=True, timeout=15)
+            
+            duration = time.time() - start_time
+            
+            if result.returncode == 0:
+                # DEBUG: Print raw output to diagnose parsing issues
+                raw_stdout = result.stdout.strip()
+                raw_stderr = result.stderr.strip() if result.stderr else "No stderr"
+                print(f"DEBUG: Raw stdout: '{raw_stdout}'")
+                print(f"DEBUG: Raw stderr: '{raw_stderr}'")
+                
+                try:
+                    similarity_score = float(raw_stdout)
+                    model_scores.append((model, similarity_score))
+                    print(f"DEBUG: {model.filename} - Similarity: {similarity_score:.3f}% ({duration:.2f}s)")
+                except ValueError as e:
+                    print(f"DEBUG: Failed to parse similarity score for {model.filename}: {e}")
+                    print(f"DEBUG: Stdout content: '{raw_stdout}'")
+            else:
+                print(f"DEBUG: Error with {model.filename} - Return code: {result.returncode} ({duration:.2f}s)")
+                print(f"DEBUG: Error stdout: '{result.stdout}'")
+                print(f"DEBUG: Error stderr: '{result.stderr}'")
+                
+        except subprocess.TimeoutExpired:
+            print(f"DEBUG: Timeout (>15s) comparing {model.filename}")
+            continue
+        except Exception as e:
+            print(f"DEBUG: Error comparing {model.filename}: {e}")
+            continue
+    
+    # Cleanup temp files
+    try:
+        os.remove(source_temp_path)
+        os.remove(compare_temp_path)
+        os.rmdir(temp_dir)
+    except:
+        pass  # Ignore cleanup errors
+    
+    # Sort by similarity score (highest first) and take top-k
+    model_scores.sort(key=lambda x: x[1], reverse=True)
+    similar_models = [model for model, score in model_scores[:request.top_k]]
+    
+    total_duration = time.time() - search_start_time
+    print(f"DEBUG: Found {len(similar_models)} similar models in {total_duration:.1f} seconds")
+    print(f"DEBUG: Top scores: {[(model.filename, score) for model, score in model_scores[:request.top_k]]}")
+    
+    # Avoid division by zero if no models were successfully processed
+    if len(model_scores) > 0:
+        print(f"DEBUG: Average time per comparison: {total_duration/len(model_scores):.2f}s")
+    else:
+        print(f"DEBUG: No models were successfully compared")
+    print(f"DEBUG: Geometry cache size: {len(_geometry_cache)}")
     
     return {
         "source_model": request.source_model,
         "similar_models": similar_models,
-        "method": "mock_category_based"  # Will be replaced with actual feature similarity
+        "similarity_scores": [score for model, score in model_scores[:request.top_k]],
+        "method": f"{'direct' if request.algorithm == 'kdtree' else 'cached'}_{request.algorithm}_similarity_scores"
     }
 
 @app.get("/models/compare/{model1_path:path}/vs/{model2_path:path}")

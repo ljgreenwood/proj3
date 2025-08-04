@@ -15,14 +15,18 @@ struct Point { // all operations O(1)
         this->y = p.y;
         this->z = p.z;
     };
-    bool operator==(const Point& rhs) const { // operator overloading for ==
+    bool operator==(const Point& rhs) const {
         return (x == rhs.x && y == rhs.y && z == rhs.z);
     };
+    Point operator-(const Point& rhs) const {
+        return Point(x - rhs.x, y - rhs.y, z - rhs.z);
+    }
+    
 };
 
-struct Face { // wrapper for vector of indices
-    vector<int> indices; 
+struct Face {
+    vector<int> indices;
 };
 
-bool loadOFF(const string& path, vector<Point>& vertices, vector<Face>& faces); // file to load OFFs into a vector of vertices and a vector of faces
-float distance(const Point& p1, const Point& p2); // generic function to calculate distance between two 3d points :: O(1)
+bool loadOFF(const string& path, vector<Point>& vertices, vector<Face>& faces);
+float distance(const Point& p1, const Point& p2);

@@ -2,14 +2,11 @@
 #include "KDTree.h"
 
 // Variables that are used for tree comparisons
-const float KD_TOLERANCE = 0.1; // Tolerance for point distance
-const float OCT_TOLERANCE = 0.1; // Results with lower than tolerance mean similar points
-const float OCT_THRESHOLD = 0.65; // Similarity threshold percentage, results with higher percentage are more similar
+float KD_TOLERANCE = 0.1; // Tolerance for point distance
+float OCT_TOLERANCE = 0.1; // Results with lower than tolerance mean similar points
 
-/**
- * FUNCTION TO COMPARE KDTrees
- * Time :: O(n^2)
- */
+float OCT_THRESHOLD = 0.65; // Similarity threshold percentage, results with higher percentage are more similar
+
 bool KDTreeComparison(KDTree& treeA, KDTree& treeB) {
     // distance from A to B
     float max_dist_A_to_B = 0.0;
@@ -31,40 +28,34 @@ bool KDTreeComparison(KDTree& treeA, KDTree& treeB) {
             max_dist_B_to_A = dist;
         }
     }
-    if (max(max_dist_A_to_B, max_dist_B_to_A) <= KD_TOLERANCE) {
+    if (std::max(max_dist_A_to_B, max_dist_B_to_A) <= KD_TOLERANCE) {
         return true;
     }
     return false;
 }
 
-/**
- * FUNCTION TO COMPARE OCTTREES (class method)
- * Time :: 
- */
 bool OctTreeComparison(Octree& treeA, Octree& treeB) {
     return Octree::compareOctree(treeA.getRoot(), treeB.getRoot(), OCT_TOLERANCE, OCT_THRESHOLD);
 }
 
-/**
- * FUNCTION TO CREATE A KDTREE
- */
-void fillKD(const std::vector<Point>& vertices, KDTree& tree) {
+KDTree fillKD(const std::vector<Point>& vertices) {
+    KDTree tree;
     for (Point p : vertices) {
         tree.insert(p);
     }
+    return tree;
 }
 
-/**
- * FUNCTION TO CREATE AN OCTREE
- */
-void fillOct(const std::vector<Point>& vertices, Octree& tree) {
+Octree fillOct(const std::vector<Point>& vertices) {
+    Octree tree;
     for (Point p : vertices) {
         tree.insert(p);
     }
+    return tree;
 }
 
 /**
- * ARGUMENTS ARE :: <PROGRAM NAME> <SOURCEDIRECTORY> <TREETOGGLE>
+ * ./executable <source_dir> <tree_toggle_boolean> <count>
  */
 int main(int argc, char* argv[]) {
     string source_dir = argv[1];
@@ -77,10 +68,10 @@ int main(int argc, char* argv[]) {
     KDTree source_KDTree;
     Octree source_Octree;
     if (tree_toggle == "kdtree") {
-        fillKD(source_vertices, source_KDTree);
+        source_KDTree =  fillKD(source_vertices);
     }
     else if (tree_toggle == "octree") {
-        fillOct(source_vertices, source_Octree);
+        source_Octree = fillOct(source_vertices);
     }
     if (!loadOFF(source_dir, source_vertices, source_faces)) return -1;
 
@@ -94,14 +85,13 @@ int main(int argc, char* argv[]) {
 
         if (!loadOFF(entry.path().string(), vertices, faces)) continue;
         if (tree_toggle == "kdtree") {
-            KDTree kd; fillKD(vertices, kd);
-            if (KDTreeComparison(source_KDTree,  kd)) {
-                filenames.push_back(entry.path().string());
-            }
+            KDTree KDTree =  fillKD(vertices);
+            KDTreeComparison(source_KDTree,  KDTree);
+            filenames.push_back(entry.path().string());
         }
         else if (tree_toggle == "octree") {
-            Octree oct; fillOct(vertices, oct);
-             if (OctTreeComparison(source_Octree, oct)) {
+            Octree Octree = fillOct(vertices);
+             if (OctTreeComparison(source_Octree, Octree)) {
                  filenames.push_back(entry.path().string());
              }
         }
