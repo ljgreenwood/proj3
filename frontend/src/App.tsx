@@ -13,6 +13,8 @@ import {
   CircularProgress,
   SelectChangeEvent,
   IconButton,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
 import { ArrowBackIos, ArrowForwardIos } from '@mui/icons-material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -44,6 +46,7 @@ function App() {
   const [currentSimilarIndex, setCurrentSimilarIndex] = useState<number>(0);
   const [currentSimilarGeometry, setCurrentSimilarGeometry] = useState<ModelGeometry | null>(null);
   const [loading, setLoading] = useState(false);
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState<'kdtree' | 'octree'>('kdtree');
   
   // Geometry cache to avoid re-fetching
   const [geometryCache, setGeometryCache] = useState<Map<string, ModelGeometry>>(new Map());
@@ -119,7 +122,7 @@ function App() {
     
     try {
       setLoading(true);
-      const response = await apiService.findSimilarModels(selectedModel1.filename, 5);
+              const response = await apiService.findSimilarModels(selectedModel1.filename, 5, selectedAlgorithm);
       
       if (response.similar_models.length > 0) {
         setSimilarModels(response.similar_models);
@@ -206,12 +209,24 @@ function App() {
                 ))}
               </Select>
             </FormControl>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={selectedAlgorithm === 'octree'}
+                  onChange={(e) => setSelectedAlgorithm(e.target.checked ? 'octree' : 'kdtree')}
+                  disabled={loading}
+                  sx={{ color: 'white' }}
+                />
+              }
+              label={selectedAlgorithm.toUpperCase()}
+              sx={{ color: 'white', mr: 2 }}
+            />
             <Button 
               color="inherit" 
               onClick={handleFindSimilar}
               disabled={!selectedModel1 || loading}
             >
-              Find Similar
+              {loading ? 'Searching...' : 'Find Similar'}
             </Button>
           </Toolbar>
         </AppBar>

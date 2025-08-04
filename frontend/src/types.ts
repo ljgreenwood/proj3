@@ -18,6 +18,7 @@ export interface ModelGeometry {
 export interface SimilarityResponse {
   source_model: string;
   similar_models: ModelInfo[];
+  similarity_scores?: number[];
   method: string;
 }
 

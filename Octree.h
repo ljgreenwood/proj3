@@ -20,7 +20,7 @@ class Octree {
     };
 
     OctreeNode* root;
-    void insertHelper(OctreeNode* node, const Point &point);
+    OctreeNode* insertHelper(OctreeNode* node, const Point &point);
     bool searchHelper(const OctreeNode* node, const Point &point); 
     void traverseHelper(const OctreeNode* node, vector<Point> &accum);
     void deleteOctree(OctreeNode* node); 
