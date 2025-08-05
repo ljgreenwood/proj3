@@ -1,7 +1,7 @@
 #include "Octree.h"
 
-void Octree::subdivide(Octree::OctreeNode* node) { // O(1)
-    /* create an array of lower bounds points */
+void Octree::subdivide(OctreeNode* node) { // O(1)
+     
     Point blbs[8] = {
         {node->backLeftBottom.x, node->backLeftBottom.y, node->backLeftBottom.z},
         {node->center.x,         node->backLeftBottom.y, node->backLeftBottom.z},
@@ -13,7 +13,6 @@ void Octree::subdivide(Octree::OctreeNode* node) { // O(1)
         {node->center.x,         node->center.y,         node->center.z}
     };
 
-    /* create an array of upper bound points */
     Point frt[8] = {
         {node->center.x,         node->center.y,         node->center.z},
         {node->frontRightTop.x,  node->center.y,         node->center.z},
@@ -25,23 +24,18 @@ void Octree::subdivide(Octree::OctreeNode* node) { // O(1)
         {node->frontRightTop.x,  node->frontRightTop.y,  node->frontRightTop.z}
     };
     
-    /* create the OctreeNode children according to the bounds given in the array */
+
     for (int i = 0; i < OctreeNode::MAXCHILDREN; ++i) {
-        node->children[i] = new OctreeNode(frt[i], blbs[i]); // Fixed: frt first (max), blbs second (min)
+        node->children[i] = new OctreeNode(blbs[i], frt[i]);
     }
 }
 
-Octree::OctreeNode* Octree::insertHelper(Octree::OctreeNode* node, const Point &point) { // O(log n)
-    if (node == nullptr) {
-        // Create root node with dataset-specific bounds
-        const Point max(990.899f, 1023.244f, 1522.80388f);
-        const Point min(-990.899f, -1023.244f, -1522.80388f);
-        node = new OctreeNode(max, min);
-        node->contents.push_back(point);
-        return node;
-    }
+void Octree::insertHelper(OctreeNode* node, const Point &point) { // O(log n)
 
-    if(node->isLeaf()) { // node is a leaf
+    if(!node->isLeaf()) { // node is internal (has children)
+        insertHelper(node->children[getIndex(node, point)], point); // insert in the proper subquadrant
+    }
+    else { // node is a leaf
         if(node->contents.size() < OctreeNode::MAXCHILDREN) {
             node->contents.push_back(point); // now the point has been added
         }
@@ -50,13 +44,9 @@ Octree::OctreeNode* Octree::insertHelper(Octree::OctreeNode* node, const Point &
             node->children[getIndex(node, point)]->contents.push_back(point);
         }
     }
-    else {   // node is internal
-        node->children[getIndex(node, point)] = insertHelper(node->children[getIndex(node, point)], point); // insert in the proper subquadrant
-    }
-    return node;
 }
 
-bool Octree::searchHelper(const Octree::OctreeNode* node, const Point &param) {
+bool Octree::searchHelper(const OctreeNode* node, const Point &param) {
     if (node->isLeaf()){
        for (const Point& point : node->contents) {
         if (point == param) return true;
@@ -68,31 +58,31 @@ bool Octree::searchHelper(const Octree::OctreeNode* node, const Point &param) {
     }
 }
 
-void Octree::traverseHelper(const Octree::OctreeNode* node, vector<Point> &accum) {
+void Octree::traverseHelper(const OctreeNode* node, vector<Point> &accum) {
     if (node->isLeaf()) {
        for(const Point& point : node->contents) {
             accum.push_back(point);
        }
     }
     else {
-        for(const Octree::OctreeNode* child : node->children) {
+        for(const OctreeNode* child : node->children) {
             traverseHelper(child, accum);
         }
     }
 }
 
-void Octree::deleteOctree(Octree::OctreeNode* node) {
+void Octree::deleteOctree(OctreeNode* node) {
     if (!node) return; // there is no tree to delete
     if (node->isLeaf()) delete node; // the node has no children
     else {// it has children
-        for (Octree::OctreeNode* child : node->children) {
+        for (OctreeNode* child : node->children) {
             deleteOctree(child);
         }
         delete node; // no children after loop
     }
 }
 
-unsigned char Octree::getIndex(const Octree::OctreeNode* node, const Point &point) const {
+unsigned char Octree::getIndex(const OctreeNode* node, const Point &point) const {
     // centerxyz is
     // >>> backLeftBottom 000
     // <>> frontLeftBottom 001
@@ -116,27 +106,17 @@ Octree::OctreeNode* Octree::getRoot() const {
     return root;
 }
 
-bool Octree::calculatePointSimilarity(const vector<Point>& points1, const vector<Point>& points2, float tolerance) {
-    // Compare point sets - they don't need to be exactly 8 points
-    if (points1.empty() && points2.empty()) return true;
-    if (points1.empty() || points2.empty()) return false;
-    
-    // If sizes are very different, not similar
-    if (abs((int)points1.size() - (int)points2.size()) > 3) return false;
-    
-    // Calculate average distance between corresponding points
-    int min_size = std::min(points1.size(), points2.size());
-    float total_distance = 0.0f;
-    
-    for (int i = 0; i < min_size; ++i) {
-        total_distance += sqrt(distance(points1[i], points2[i]));
+bool Octree::calculatePointSimilarity(const vector<Point> &points1, const vector<Point> &points2, float tolerance) {
+    if (points1.size() != 8 || points2.size() != 8) return false; //
+
+    for (int i = 0; i < 8; ++i) {
+        if (sqrt(distance(points1[i],points2[i])) > tolerance)
+            return false;
     }
-    
-    float avg_distance = total_distance / min_size;
-    return avg_distance <= tolerance;
+    return true;
 }
 
-void Octree::calculateNodeSimilarity(Octree::OctreeNode* node1, Octree::OctreeNode* node2, float tolerance, float &result, int &nodes, int &similar_nodes) {
+void Octree::calculateNodeSimilarity(OctreeNode* node1, OctreeNode* node2, float tolerance, float &result, int &nodes, int &similar_nodes) {
     if (node1 == nullptr && node2 == nullptr) return; // both nullptr, there similar
     if (node1 == nullptr || node2 == nullptr) {
         // One is null, the other isn't then count only the non-null as a node
@@ -152,7 +132,7 @@ void Octree::calculateNodeSimilarity(Octree::OctreeNode* node1, Octree::OctreeNo
     }
 }
 
-bool Octree::compareOctree(Octree::OctreeNode* node1, Octree::OctreeNode* node2, float tolerance, float threshold) {
+bool Octree::compareOctree(OctreeNode* node1, OctreeNode* node2, float tolerance, float threshold) {
     float result = 0;
     int nodes = 0;
     int similar_nodes = 0;

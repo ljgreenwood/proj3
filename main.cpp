@@ -85,8 +85,8 @@ float OctTreeSimilarity(Octree& treeA, Octree& treeB) {
 
 KDTree fillKD(const std::vector<Point>& vertices) {
     KDTree tree;
-    // Sample vertices to improve performance (max 200 vertices)
-    int step = std::max(1, (int)vertices.size() / 200);
+    // Sample vertices to improve performance (max 1000 vertices)
+    int step = std::max(1, (int)vertices.size() / 1000);
     std::cerr << "DEBUG: Sampling " << vertices.size() << " vertices with step " << step 
               << " (using ~" << (vertices.size() / step) << " vertices)" << std::endl;
     
@@ -98,8 +98,8 @@ KDTree fillKD(const std::vector<Point>& vertices) {
 
 Octree fillOct(const std::vector<Point>& vertices) {
     Octree tree;
-    // Sample vertices to improve performance (max 200 vertices)
-    int step = std::max(1, (int)vertices.size() / 200);
+    // Sample vertices to improve performance (max 1000 vertices)
+    int step = std::max(1, (int)vertices.size() / 1000);
     std::cerr << "DEBUG: Sampling " << vertices.size() << " vertices with step " << step 
               << " (using ~" << (vertices.size() / step) << " vertices)" << std::endl;
     

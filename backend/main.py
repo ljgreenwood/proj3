@@ -300,7 +300,7 @@ async def find_similar_models(request: SimilarityRequest):
                 compare_rel = os.path.relpath(compare_direct_path, project_root)
                 
                 # Use full path to executable to avoid "file not found" issues
-                exe_path = os.path.join(project_root, "similarity_search.exe")
+                exe_path = os.path.join(project_root, "similarity_search")
                 cmd = [exe_path, source_rel, compare_rel, request.algorithm]
                 
                 # DEBUG: Print exact command and working directory
@@ -318,7 +318,7 @@ async def find_similar_models(request: SimilarityRequest):
                 write_geometry_to_off(compare_geometry, compare_temp_path)
                 
                 result = subprocess.run([
-                    "../similarity_search.exe",
+                    "../similarity_search",
                     source_temp_path,
                     compare_temp_path,
                     request.algorithm
